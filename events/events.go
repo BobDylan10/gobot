@@ -7,6 +7,7 @@ const (
 	EVT_CLIENT_BEGIN EventType = iota
 	EVT_CLIENT_KILL
 	EVT_CLIENT_SAY
+	EVT_CLIENT_INFO
 )
 
 // //Indices for Event elements
