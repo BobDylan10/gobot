@@ -9,6 +9,10 @@ import (
 	"regexp"
 	"testbot/parsers/iourt43"
 	"testbot/server"
+	"testbot/events"
+
+	"testbot/plugins/mappings"
+	"testbot/plugins"
 )
 //This takes a string, maps its named results into a map
 func getParams(regEx, url string) (paramsMap map[string]string) {
@@ -48,7 +52,10 @@ func reader(path string) {
 				for scanner.Scan() {
 					txt := scanner.Text()
 					fmt.Println("Parsing " + txt)
-					fmt.Println(iourt43.ParseLine(txt))
+					e := iourt43.ParseLine(txt)
+					if (e != nil) {
+						pluginSchedule(e)
+					}
 				}
 				fmt.Println("End round")
 				if err := scanner.Err(); err != nil {
@@ -58,11 +65,68 @@ func reader(path string) {
 	}
 }
 
+
+func pluginSchedule(evt events.Event) {
+	fmt.Println(evt)
+	//First, send to players. This is not send in a goroutine because it is safer to wait for the player module to finish its work before continuing the rest
+
+	//Then, send to plugins
+	for plugin, evtmap := range pluginInBuffers {
+		if (mappings.IsDep(plugin, evt.EventType())) {
+			fmt.Println("Trying to send to plugin")
+			evtmap<-evt
+			select {
+			case transmit := <-outEvents: //This will be done in another goroutine in the future ? It might be of use to use blocking channels. It might give some really weird behaviours, it might be of importance to monitor the execution time of the plugins
+				fmt.Println("Should transmit event", transmit)
+			default:
+				fmt.Println("No event to transmit")
+			}
+		}
+	}
+}
+
+func restransmitEvents() {
+	for {
+		a := <-outEvents
+		fmt.Println("Should retransmit", a)
+	}
+}
+
+var outEvents chan plugins.PassEvent
+var pluginInBuffers map[plugins.Plugin](chan events.Event)
+var testMap map[plugins.Plugin]int
+
+func newChan() (chan events.Event) {
+	return make(chan events.Event)
+}
+
+func initPlugins() {
+	//Start runners
+	pluginInBuffers = make(map[plugins.Plugin](chan events.Event))
+	outEvents = make(chan plugins.PassEvent, 2)
+	testMap = make(map[plugins.Plugin]int)
+	testMap[plugins.PLUGIN_CMD] = 3
+
+	for plugin, runner := range mappings.Runners {
+		fmt.Println("Initializing", plugin)
+		pluginInBuffers[plugin] = newChan()
+		go runner(pluginInBuffers[plugin], outEvents)
+	}
+	fmt.Println("pluginInBuffer, ", pluginInBuffers)
+	fmt.Println("testMap, ", testMap)
+
+	go restransmitEvents()
+}
+
 func main() {
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
+	initPlugins()
+	fmt.Println("pluginInBuffer, ", pluginInBuffers[plugins.PLUGIN_CMD])
+	fmt.Println("outEvents, ", outEvents)
+	fmt.Println("testMap, ", testMap)
 	server.Init()
-	server.CallServer("say \"^2Reader starting up\"")
-
+	//server.CallServer("say \"^2Reader starting up\"")
+	//test := make(map[int](chan string))
 	go reader(path)
 	server.CallServer("kick 0")
 

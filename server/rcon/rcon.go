@@ -1,5 +1,7 @@
 package rcon
 
+//TODO: Better handling of network failures
+
 import (
 	"net"
 	"fmt"

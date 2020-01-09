@@ -48,7 +48,7 @@ func getLineParts(line string) (map[string] string, error) {
 	return nil, &parseError{line}
 }
 
-func createEvent(args map[string] string) *events.Event {
+func createEvent(args map[string] string) events.Event {
     action := strings.ToLower(args["action"])
     data := args["data"]
     switch action {
@@ -57,22 +57,22 @@ func createEvent(args map[string] string) *events.Event {
         if err != nil {
             fmt.Println("Error converting cid")
         }
-        return &events.Event{Evt: events.EVT_CLIENT_SAY, Client: cid, Data: map[string]string{"text": args["text"]}} //Might need the name as well
+        return events.EventSay{Client: cid, Text: args["text"]} //Might need the name as well
     case "clientuserinfo":
-        tmp := strings.SplitAfterN(data, " ", 2)
+        tmp := strings.SplitN(data, " ", 2)
         cid := tmp[0]
         data = tmp[1]
         pid, err := strconv.Atoi(cid)
         if err != nil {
-            fmt.Println("Error converting cid")
+            fmt.Println("Error", err, "converting cid", cid)
         }
-        return &events.Event{Evt: events.EVT_CLIENT_INFO, Client: pid, Data: map[string]string{"data": data}}
+        return events.EventClientInfo{Client: pid, Data: parseUserInfo(data)}
     default:
-        return events.NewEvent(events.EVT_CLIENT_SAY)
+        return nil
     }
 }
 
-func ParseLine(line string) *events.Event {
+func ParseLine(line string) events.Event {
     r, e := getLineParts(line)
     if (e != nil) {
         fmt.Printf("Error parsing line %s", line)
