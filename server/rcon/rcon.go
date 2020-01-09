@@ -4,6 +4,7 @@ import (
 	"net"
 	"fmt"
 	"strings"
+	"time"
 )
 const rconsendstring = "\xff\xff\xff\xffrcon \"%s\" %s\n"
 const rconreplystring = "\xff\xff\xff\xffprint\n"
@@ -27,6 +28,7 @@ func RconRunner(done <-chan bool, commands <-chan string, answers chan<- string)
 	for {
 		select {
 		case cmd := <-commands:
+			fmt.Println("Command: ", cmd)
 			conn.Write([]byte(fmt.Sprintf(rconsendstring, password, cmd)))
 			buffer := make([]byte, maxBufferSize)
 			n, err := conn.Read(buffer)
@@ -38,6 +40,7 @@ func RconRunner(done <-chan bool, commands <-chan string, answers chan<- string)
 			ans = strings.TrimPrefix(ans, rconreplystring)
 			answers<-ans
 			//fmt.Println(ans)
+			time.Sleep(250 * time.Millisecond)
 		case <-done:
 			return
 		}

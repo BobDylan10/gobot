@@ -8,6 +8,7 @@ import (
 	"time"
 	"regexp"
 	"testbot/parsers/iourt43"
+	"testbot/server"
 )
 //This takes a string, maps its named results into a map
 func getParams(regEx, url string) (paramsMap map[string]string) {
@@ -59,7 +60,12 @@ func reader(path string) {
 
 func main() {
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
+	server.Init()
+	server.CallServer("say \"^2Reader starting up\"")
+
 	go reader(path)
+	server.CallServer("kick 0")
+
 	done := make(chan bool)
 
 	<-done //Wait infinity
