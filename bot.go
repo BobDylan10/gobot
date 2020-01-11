@@ -13,6 +13,8 @@ import (
 
 	"testbot/plugins/mappings"
 	"testbot/plugins"
+
+	"testbot/players"
 )
 //This takes a string, maps its named results into a map
 func getParams(regEx, url string) (paramsMap map[string]string) {
@@ -69,7 +71,7 @@ func reader(path string) {
 func pluginSchedule(evt events.Event) {
 	fmt.Println(evt)
 	//First, send to players. This is not send in a goroutine because it is safer to wait for the player module to finish its work before continuing the rest
-
+	players.CollectEvents(evt)
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
 		if (mappings.IsDep(plugin, evt.EventType())) {
