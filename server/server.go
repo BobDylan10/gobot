@@ -16,6 +16,10 @@ func Init() {
 	go rcon.RconRunner(done, cmds, aws)
 }
 
+func Close() {
+	<-done
+}
+
 func CallServer(command string) string{
 	cmds<-command
 	return <-aws
