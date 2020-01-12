@@ -38,7 +38,7 @@ func clearLine(line string) string {
 
 func getLineParts(line string) (map[string] string, error) {
 	line = clearLine(line)
-    fmt.Println(line)
+    //fmt.Println(line)
 	for _, v := range _lineFormats {
 		form := regexp.MustCompile(v)
 		if (form.MatchString(line)) {
@@ -77,6 +77,6 @@ func ParseLine(line string) events.Event {
     if (e != nil) {
         fmt.Printf("Error parsing line %s", line)
     }
-    fmt.Println(r)
+    //fmt.Println(r)
 	return createEvent(r)
 }

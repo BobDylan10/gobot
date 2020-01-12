@@ -55,17 +55,17 @@ func reader(path string) {
 		select {
 			case <-read_rate.C:
 				scanner = bufio.NewScanner(file)
-				s, _ := file.Stat()
-				fmt.Println("Size:", s.Size())
+				//s, _ := file.Stat()
+				//fmt.Println("Size:", s.Size())
 				for scanner.Scan() {
 					txt := scanner.Text()
-					fmt.Println("Parsing " + txt)
+					//fmt.Println("Parsing " + txt)
 					e := iourt43.ParseLine(txt)
 					if (e != nil) {
 						pluginSchedule(e)
 					}
 				}
-				fmt.Println("End round")
+				//fmt.Println("End round")
 				if err := scanner.Err(); err != nil {
 					log.Fatal(err)
 				}
@@ -81,7 +81,7 @@ func pluginSchedule(evt events.Event) {
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
 		if (mappings.IsDep(plugin, evt.EventType())) {
-			fmt.Println("Trying to send to plugin")
+			fmt.Println("Trying to send to plugin", plugin)
 			evtmap<-evt
 			select {
 			case transmit := <-outEvents: //This will be done in another goroutine in the future ? It might be of use to use blocking channels. It might give some really weird behaviours, it might be of importance to monitor the execution time of the plugins
@@ -139,7 +139,7 @@ func main() {
 	//server.CallServer("say \"^2Reader starting up\"")
 	//test := make(map[int](chan string))
 	go reader(path)
-	server.CallServer("kick 0")
+	//server.CallServer("kick 0")
 
 	//Cleanup and signals
 	signals := make(chan os.Signal, 1)
@@ -148,10 +148,12 @@ func main() {
 	go func() {
 		<-signals
 		fmt.Println("Exiting bot")
-		database.CloseDatabase()
-		server.Close()
+		go database.CloseDatabase() //Launched in goroutines incase they are frozen for some reason
+		go server.Close()
 
 		time.Sleep(time.Second)//Let 1 second to close what needs to be closed
+
+		os.Exit(0)
 	}()
 
 	done := make(chan bool)
