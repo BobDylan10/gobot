@@ -7,6 +7,12 @@ import (
 	"os"
 	"time"
 	"regexp"
+
+	"os/signal"
+	"syscall"
+
+	"testbot/database"
+
 	"testbot/parsers/iourt43"
 	"testbot/server"
 	"testbot/events"
@@ -123,6 +129,9 @@ func initPlugins() {
 func main() {
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
 	initPlugins()
+
+	database.SetDatabase("gobot:gobot@/gobot_db") //Init database
+
 	fmt.Println("pluginInBuffer, ", pluginInBuffers[plugins.PLUGIN_CMD])
 	fmt.Println("outEvents, ", outEvents)
 	fmt.Println("testMap, ", testMap)
@@ -131,6 +140,19 @@ func main() {
 	//test := make(map[int](chan string))
 	go reader(path)
 	server.CallServer("kick 0")
+
+	//Cleanup and signals
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-signals
+		fmt.Println("Exiting bot")
+		database.CloseDatabase()
+		server.Close()
+
+		time.Sleep(time.Second)//Let 1 second to close what needs to be closed
+	}()
 
 	done := make(chan bool)
 
