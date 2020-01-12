@@ -9,7 +9,6 @@ import (
 	"testbot/plugins/commands"
 )
 
-//TODO: Create a map with all the runner functions so that main can call them easily
 var Runners = map[plugins.Plugin](func (evts <-chan events.Event, back chan<- plugins.PassEvent)){
 	plugins.PLUGIN_CMD: commands.Runner}
 
