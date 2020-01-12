@@ -8,6 +8,7 @@ import (
 
 var Database *sql.DB
 
+// Sets the wanted database
 func SetDatabase(dsn string) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
