@@ -5,10 +5,11 @@ import (
 	"sync"
 	"runtime"
 	"strconv"
+	"os"
 )
 
 var lock     sync.Mutex // ensures atomic writes; protects the following fields
-var writer    io.Writer  // destination for output
+var writer    io.Writer = os.Stdout  // destination for output
 
 type Loglevel int
 
@@ -43,7 +44,7 @@ func Log(lvl Loglevel, str string) {
 	output := make([]byte, 0)
 	output = append(output, level(lvl)...)
 
-	_, file, line, ok := runtime.Caller(2)
+	_, file, line, ok := runtime.Caller(1)
 	finfo := "???: "
 	if (ok) {
 		finfo = file + " " + strconv.Itoa(line) + ": "
@@ -51,5 +52,5 @@ func Log(lvl Loglevel, str string) {
 	output = append(output, finfo...)
 	output = append(output, str...)
 	output = append(output, '\n')
-	writer.Write(output)
+	writer.Write(output) //I hope this is thread-safe (?)
 }

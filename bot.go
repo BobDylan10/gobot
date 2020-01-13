@@ -3,13 +3,14 @@ package main
 import (
     "bufio"
     "fmt"
-    "log"
 	"os"
 	"time"
 	"regexp"
 
 	"os/signal"
 	"syscall"
+
+	"testbot/log"
 
 	"testbot/database"
 
@@ -43,7 +44,7 @@ func getParams(regEx, url string) (paramsMap map[string]string) {
 func reader(path string) {
 	file, err := os.Open(path) //We should put the cursor at the end of file to avoid re-reading from scratch
 	if err != nil {
-		log.Fatal(err)
+		log.Log(log.LOG_ERROR, err.Error())
 	}
 	defer file.Close()
 
@@ -67,7 +68,7 @@ func reader(path string) {
 				}
 				//fmt.Println("End round")
 				if err := scanner.Err(); err != nil {
-					log.Fatal(err)
+					log.Log(log.LOG_ERROR, err.Error())
 				}
 		}
 	}
@@ -127,14 +128,12 @@ func initPlugins() {
 }
 
 func main() {
+	log.Log(log.LOG_INFO, "Starting b0t")
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
 	initPlugins()
 
 	database.SetDatabase("gobot:gobot@/gobot_db") //Init database
-
-	fmt.Println("pluginInBuffer, ", pluginInBuffers[plugins.PLUGIN_CMD])
-	fmt.Println("outEvents, ", outEvents)
-	fmt.Println("testMap, ", testMap)
+	
 	server.Init()
 	//server.CallServer("say \"^2Reader starting up\"")
 	//test := make(map[int](chan string))

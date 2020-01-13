@@ -3,20 +3,21 @@ package database
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"fmt"
+	"testbot/log"
 )
 
 var Database *sql.DB
 
 // Sets the wanted database
 func SetDatabase(dsn string) {
+	log.Log(log.LOG_INFO, "Setting up database")
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		fmt.Println("Cannot open database")
+		log.Log(log.LOG_ERROR, "Cannot open database")
 	} //TODO: Need to do better
 	err = db.Ping()
 	if err != nil {
-		fmt.Println("Did not work")
+		log.Log(log.LOG_ERROR, "Cannot open database")
 	}
 	Database = db
 }
