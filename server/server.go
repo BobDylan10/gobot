@@ -65,11 +65,13 @@ func getPlayers() { //Quickfix for Urt, should be done inside rcon
 }
 
 func Say(tosay string) {
+	log.Log(log.LOG_VERBOSE, "Saying", tosay)
 	CallServer("say \"" + tosay + "\"")
 	//Is it necessary to return something ?
 }
 
 func BigText(tosay string) {
+	log.Log(log.LOG_VERBOSE, "Bigtexting", tosay)
 	CallServer("bigtext \"Bonjour " + tosay + "\"")
 	//Is it necessary to return something ?
 }

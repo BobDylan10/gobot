@@ -90,14 +90,15 @@ func runner(evts <-chan events.Event) {
 
 func onHelp(id int, args string) {
 	pl, ok := players.GetPlayer(id)
-	allowedCommands := ""
+	allowedCommands := "^0"
 	if (ok) {
 		lvl := pl.GetPlayerLevel()
 		for cmd, handlers := range handlers {
 			if (handlers.level <= lvl) {
-				allowedCommands += cmd + ", "
+				allowedCommands += "!" + cmd + ", "
 			}
 		}
+		allowedCommands = strings.TrimSuffix(allowedCommands, ", ")
 		server.Say(allowedCommands)
 	}
 }
