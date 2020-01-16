@@ -18,7 +18,8 @@ const (
 	LOG_DEBUG Loglevel = iota
 	LOG_VERBOSE
 	LOG_INFO
-	LOG_ERROR
+	LOG_ERROR //Recoverable error
+	LOG_FATAL //Needs the bot to be closed
 )
 
 func Init(w io.Writer) {
@@ -35,6 +36,8 @@ func level(l Loglevel) string {
 		return "INFO: "
 	case LOG_ERROR:
 		return "ERROR: "
+	case LOG_FATAL:
+		return "FATAL: "
 	default:
 		return "LOG: "
 	}
