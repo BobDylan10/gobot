@@ -133,12 +133,12 @@ func initPlugins() {
 func main() {
 	log.Log(log.LOG_INFO, "Starting b0t")
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
-	initPlugins()
+	
 
 	database.SetDatabase("gobot:gobot@/gobot_db?parseTime=true") //Init database
-	
+	initPlugins()
 	server.Init()
-	//server.CallServer("say \"^2Reader starting up\"")
+	//server.Say("^5 Bot starting up")
 	//test := make(map[int](chan string))
 	go reader(path)
 	//server.CallServer("kick 0")
