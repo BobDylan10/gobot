@@ -5,7 +5,6 @@ import (
     "fmt"
 	"os"
 	"time"
-	"regexp"
 
 	"os/signal"
 	"syscall"
@@ -23,23 +22,6 @@ import (
 
 	"testbot/players"
 )
-//This takes a string, maps its named results into a map
-func getParams(regEx, url string) (paramsMap map[string]string) {
-
-    var compRegEx = regexp.MustCompile(regEx)
-	match := compRegEx.FindStringSubmatch(url)
-	if match == nil {
-		fmt.Print("No match")
-	}
-
-    paramsMap = make(map[string]string)
-    for i, name := range compRegEx.SubexpNames() {
-        if i > 0 && i <= len(match) {
-            paramsMap[name] = match[i]
-        }
-    }
-    return
-}
 
 func reader(path string) {
 	file, err := os.Open(path) //We should put the cursor at the end of file to avoid re-reading from scratch
@@ -56,17 +38,13 @@ func reader(path string) {
 		select {
 			case <-read_rate.C:
 				scanner = bufio.NewScanner(file)
-				//s, _ := file.Stat()
-				//fmt.Println("Size:", s.Size())
 				for scanner.Scan() {
 					txt := scanner.Text()
-					//fmt.Println("Parsing " + txt)
 					e := iourt43.ParseLine(txt)
 					if (e != nil) {
 						pluginSchedule(e)
 					}
 				}
-				//fmt.Println("End round")
 				if err := scanner.Err(); err != nil {
 					log.Log(log.LOG_ERROR, err.Error())
 				}
@@ -76,33 +54,17 @@ func reader(path string) {
 
 
 func pluginSchedule(evt events.Event) {
-	fmt.Println(evt)
-	//First, send to players. This is not send in a goroutine because it is safer to wait for the player module to finish its work before continuing the rest
+	log.Log(log.LOG_DEBUG, "Scheduling plugins for event", evt)
+	//First, send to players. This is not sent in a goroutine because it is safer to wait for the player module to finish its work before continuing the rest
 	players.CollectEvents(evt)
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
 		if (mappings.IsDep(plugin, evt.EventType())) {
-			fmt.Println("Trying to send to plugin", plugin)
 			evtmap<-evt
-			select {
-			case transmit := <-outEvents: //This will be done in another goroutine in the future ? It might be of use to use blocking channels. It might give some really weird behaviours, it might be of importance to monitor the execution time of the plugins
-				fmt.Println("Should transmit event", transmit)
-			default:
-				fmt.Println("No event to transmit")
-			}
 		}
 	}
 }
 
-//Not sure if this is really needed at this point. Inter plugin communication can be handled at the plugin layer directly
-func restransmitEvents() {
-	for {
-		a := <-outEvents
-		fmt.Println("Should retransmit", a)
-	}
-}
-
-var outEvents chan plugins.PassEvent
 var pluginInBuffers map[plugins.Plugin](chan events.Event)
 var testMap map[plugins.Plugin]int
 
@@ -113,7 +75,6 @@ func newChan() (chan events.Event) {
 func initPlugins() {
 	//Start runners
 	pluginInBuffers = make(map[plugins.Plugin](chan events.Event))
-	outEvents = make(chan plugins.PassEvent, 2)
 	testMap = make(map[plugins.Plugin]int)
 	testMap[plugins.PLUGIN_CMD] = 3
 
@@ -122,7 +83,8 @@ func initPlugins() {
 	for plugin, runner := range mappings.Runners {
 		fmt.Println("Initializing", plugin)
 		pluginInBuffers[plugin] = newChan()
-		go runner(pluginInBuffers[plugin], outEvents) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
+		go runner(pluginInBuffers[plugin]) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
+		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println("pluginInBuffer, ", pluginInBuffers)
 	fmt.Println("testMap, ", testMap)
