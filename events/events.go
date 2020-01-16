@@ -1,5 +1,7 @@
 package events
 
+//TODO: Replace all the clients with real players objects
+
 //Describes the type of the event
 type EventType int
 
