@@ -7,6 +7,7 @@ import (
 	"testbot/log"
 )
 
+//This function will always succeed, because it creates the player if it's not already on the database
 func getPlayer(guid string, name string, player *player){
 	stmtOut := database.Prepare("SELECT player_id, alias, level, last_connection, connections FROM players WHERE guid = ?")
 	defer stmtOut.Close()
@@ -38,15 +39,50 @@ func getPlayer(guid string, name string, player *player){
 	player.isBot = false
 	player.lastConnection = date
 	player.name = name
+	player.guid = guid
 }
 
 func createPlayer(guid string, name string) {
-	stmtIns := database.Prepare("INSERT INTO players(alias, guid) VALUES( ?, ? )") // ? = placeholder
+	stmtIns := database.Prepare("INSERT INTO players(alias, guid, first_seen) VALUES( ?, ?, ? )") // ? = placeholder
 	defer stmtIns.Close() // Close the statement when we leave main() / the program terminates
 
 
-	_, err := stmtIns.Exec(name, guid) // Insert tuples (i, i^2)
+	_, err := stmtIns.Exec(name, guid, time.Now()) // Insert tuples (i, i^2)
 		if err != nil {
 			log.Log(log.LOG_ERROR, "Error creating player", name, guid)
 		}
+}
+
+func (pl *player) newConnection() {
+	log.Log(log.LOG_DEBUG, "Updating player with did", pl.did)
+	pl.connections += 1
+	stmtUp := database.Prepare(
+		`UPDATE players
+		SET
+			connections = ?,
+			last_connection = ?
+		WHERE player_id = ?;`) // ? = placeholder
+	defer stmtUp.Close()
+	_, err := stmtUp.Exec(pl.connections, time.Now(), pl.did)
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error update player with did", pl.did)
+	}
+}
+
+func initTable() {
+	log.Log(log.LOG_INFO, "Initializing players table")
+	stmtInit := database.Prepare(`CREATE TABLE IF NOT EXISTS players (
+		player_id INT AUTO_INCREMENT PRIMARY KEY,
+		alias VARCHAR(32) NOT NULL,
+		level INT NOT NULL DEFAULT 1,
+		first_seen TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		last_connection TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		connections INT NOT NULL DEFAULT 0,
+		guid VARCHAR(36) NOT NULL UNIQUE
+	 ) ENGINE=InnoDB;`)
+	defer stmtInit.Close()
+	_, err := stmtInit.Exec()
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error initializing player table")
+	}
 }

@@ -14,6 +14,7 @@ type player struct {
 	isBot bool
 	connections int
 	lastConnection time.Time
+	guid string //The game unique ID
 	//Map for all extra attributes ? Seems goooooooood
 }
 
@@ -21,23 +22,34 @@ var players map[int]player //Players indexed by their current player ID
 
 func Init() {
 	players = make(map[int]player)
+	initTable()
 }
 
 func CollectEvents(e events.Event) {
 	switch t := e.(type) {
 	case events.EventClientInfo:
-		//TODO: First we check if the player is not already connected !
-		//Here we must lookup if we already know the user. If yes we grab his info, otherwise we create his entry in the database.
-		if guid, present := t.Data["cl_guid"]; present {
-			if name, present := t.Data["name"]; present {
-				pl := &player{}
-				getPlayer(guid, name, pl)
-				log.Log(log.LOG_DEBUG, "Player with Database id", pl.did, ", name", pl.name)
-				players[t.Client] = *pl
+		//We check that the player is not already inside the connected players
+		if pl, ok := players[t.Client]; ok {
+			//We check that the guid is corresponding
+			if (pl.guid != t.Data["cl_guid"]) {
+				log.Log(log.LOG_ERROR, "A player id was seen with a GUID different than in the database")
 			}
 		} else {
-			//It's a bot ?
+			//We had the player to the connected player list
+			//Here we must lookup if we already know the user. If yes we grab his info, otherwise we create his entry in the database.
+			if guid, present := t.Data["cl_guid"]; present {
+				if name, present := t.Data["name"]; present {
+					pl := &player{}
+					getPlayer(guid, name, pl)
+					log.Log(log.LOG_DEBUG, "Player with Database id", pl.did, ", name", pl.name)
+					players[t.Client] = *pl
+					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
+				}
+			} else {
+				//It's a bot ?
+			}
 		}
+		
 	default:
 		log.Log(log.LOG_INFO, "Unexpected type", t)
 	}
