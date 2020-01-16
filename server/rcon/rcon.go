@@ -27,7 +27,6 @@ func RconRunner(done <-chan bool, commands <-chan string, answers chan<- string)
 
 	if err != nil {
 		log.Log(log.LOG_ERROR, "Error", err)
-        return
 	}
 	for {
 		select {
@@ -38,7 +37,8 @@ func RconRunner(done <-chan bool, commands <-chan string, answers chan<- string)
 			n, err := conn.Read(buffer)
 			if err != nil {
 				log.Log(log.LOG_ERROR, "Error", err)
-				return
+				answers<-""
+				continue
 			}
 			ans := string(buffer[0:n])
 			ans = strings.TrimPrefix(ans, rconreplystring)
