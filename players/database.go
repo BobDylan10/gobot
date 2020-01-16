@@ -21,7 +21,6 @@ func getPlayer(guid string, name string, player *player){
 	err := stmtOut.QueryRow(guid).Scan(&did, &alias, &level, &date, &connections) // WHERE number = 13
 	if err != nil {
 		if (err == sql.ErrNoRows) {
-			log.Log(log.LOG_VERBOSE, "Creating player with GUID", guid)
 			createPlayer(guid, name)
 		} else {
 			panic(err.Error()) // proper error handling instead of panic in your app
@@ -43,6 +42,7 @@ func getPlayer(guid string, name string, player *player){
 }
 
 func createPlayer(guid string, name string) {
+	log.Log(log.LOG_INFO, "Creating new player", name, "with guid", guid)
 	stmtIns := database.Prepare("INSERT INTO players(alias, guid, first_seen) VALUES( ?, ?, ? )") // ? = placeholder
 	defer stmtIns.Close() // Close the statement when we leave main() / the program terminates
 
