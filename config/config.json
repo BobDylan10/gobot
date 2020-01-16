@@ -1,0 +1,12 @@
+{   
+    "main": {
+        "prefix": "hello",
+        "dsn": "gobot:gobot@/gobot_db",
+        "delay": 500
+    },
+    "plugins": {
+        "commands": {
+            "commandPrefix": "!"
+        }
+    }
+}
