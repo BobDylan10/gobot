@@ -6,7 +6,7 @@ import (
 	"testbot/log"
 )
 
-var Database *sql.DB
+var database *sql.DB
 
 // Sets the wanted database
 func SetDatabase(dsn string) {
@@ -19,9 +19,17 @@ func SetDatabase(dsn string) {
 	if err != nil {
 		log.Log(log.LOG_ERROR, "Cannot open database")
 	}
-	Database = db
+	database = db
+}
+
+func Prepare(query string) (*sql.Stmt) {
+	s, e := database.Prepare(query)
+	if (e != nil) {
+		log.Log(log.LOG_ERROR, "Error prepary query" + query)
+	}
+	return s
 }
 
 func CloseDatabase() {
-	Database.Close()
+	database.Close()
 }

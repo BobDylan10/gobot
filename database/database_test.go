@@ -7,10 +7,7 @@ import (
 
 func TestDatabase(t *testing.T) {
 	SetDatabase("gobot:gobot@/gobot_db")
-	stmtOut, err := Database.Prepare("SELECT player_id, alias, last_connection, connections, guid FROM players WHERE guid = ?")
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
+	stmtOut := Prepare("SELECT player_id, alias, last_connection, connections, guid FROM players WHERE guid = ?")
 	defer stmtOut.Close()
 
 	var player_id int
@@ -19,7 +16,7 @@ func TestDatabase(t *testing.T) {
 	var connections int
 	var guid string
 
-	err = stmtOut.QueryRow("MYGUID").Scan(&player_id, &alias, &date, &connections, &guid) // WHERE number = 13
+	err := stmtOut.QueryRow("MYGUID").Scan(&player_id, &alias, &date, &connections, &guid) // WHERE number = 13
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
