@@ -66,28 +66,18 @@ func pluginSchedule(evt events.Event) {
 }
 
 var pluginInBuffers map[plugins.Plugin](chan<- events.Event)
-var testMap map[plugins.Plugin]int
-
-func newChan() (chan events.Event) {
-	return make(chan events.Event)
-}
 
 func initPlugins() {
 	//Start runners
 	pluginInBuffers = make(map[plugins.Plugin](chan<- events.Event))
-	testMap = make(map[plugins.Plugin]int)
-	testMap[plugins.PLUGIN_CMD] = 3
-
 
 	players.Init()
 	for plugin, init := range mappings.Inits {
 		fmt.Println("Initializing", plugin)
 		pluginInBuffers[plugin] = init()
-		//go runner(pluginInBuffers[plugin]) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
 		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println("pluginInBuffer, ", pluginInBuffers)
-	fmt.Println("testMap, ", testMap)
 
 	//go restransmitEvents()
 }
@@ -101,9 +91,7 @@ func main() {
 	initPlugins()
 	server.Init()
 	server.Say("^5 Bot starting up")
-	//test := make(map[int](chan string))
 	go reader(path)
-	//server.CallServer("kick 0")
 
 	//Cleanup and signals
 	signals := make(chan os.Signal, 1)
