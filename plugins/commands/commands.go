@@ -6,6 +6,8 @@ import (
 	"testbot/log"
 
 	"testbot/players"
+
+	"testbot/server"
 )
 
 var initialised = false
@@ -31,6 +33,7 @@ func Runner(evts <-chan events.Event) {
 
 	handlers = make(map[string]commandHandler)
 	initialised = true
+	RegisterCommand("help", onHelp, 1)
 	log.Log(log.LOG_INFO, "Starting command plugin,", evts)
 	for {
 		evt := <-evts
@@ -53,7 +56,6 @@ func Runner(evts <-chan events.Event) {
 			if (len(tmp) == 2) {
 				args = tmp[1]
 			}
-			log.Log(log.LOG_DEBUG, "Here", cmd)
 			if pl, ok := players.GetPlayer(t.Client); ok {
 				if handler, ok := handlers[cmd]; ok {
 					if (handler.level <= pl.GetPlayerLevel()) {
@@ -68,5 +70,19 @@ func Runner(evts <-chan events.Event) {
 		default:
 			log.Log(log.LOG_INFO, "Very weird that we are here, type is ", t)
 		}
+	}
+}
+
+func onHelp(id int, args string) {
+	pl, ok := players.GetPlayer(id)
+	allowedCommands := ""
+	if (ok) {
+		lvl := pl.GetPlayerLevel()
+		for cmd, handlers := range handlers {
+			if (handlers.level <= lvl) {
+				allowedCommands += cmd + ", "
+			}
+		}
+		server.Say(allowedCommands)
 	}
 }
