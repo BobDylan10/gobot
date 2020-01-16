@@ -9,9 +9,10 @@ import (
 )
 
 func onBonjour(id int, args string) {
-	server.Say(args)
+	server.BigText(args)
 }
 
+//TODO: Remove this from handler once a superadmin was created
 func onIamgod(id int, args string) {
 	//First we check that no-one has ever already done this
 	pl, ok := players.GetPlayer(id)
