@@ -7,7 +7,15 @@ import (
 	"fmt"
 )
 
+var handlers map[string]func(string, string)
+
+//This function allows a plugin to register a command, provided an handler in the form func(command, arguments)
+func RegisterCommand(command string, fn func(string, string)) {
+	handlers[command] = fn
+}
+
 func Runner(evts <-chan events.Event, back chan<- plugins.PassEvent) {
+
 	//Beware of the deadlock with back !!!
 	fmt.Println("Starting command plugin,", evts, back)
 	for {
@@ -31,8 +39,11 @@ func Runner(evts <-chan events.Event, back chan<- plugins.PassEvent) {
 			if (len(tmp) == 2) {
 				args = tmp[1]
 			}
-			fmt.Println("Sending back a command event")
-			back<-plugins.PassEvent{Dest:plugins.PLUGIN_BROADCAST, Evt:events.EventCommand{Client: t.Client, Command: cmd, Args: args}}
+			if handler, ok := handlers[cmd]; ok {
+				handler(cmd, args) //We excute the associated handler
+			}
+			// fmt.Println("Sending back a command event")
+			// back<-plugins.PassEvent{Dest:plugins.PLUGIN_BROADCAST, Evt:events.EventCommand{Client: t.Client, Command: cmd, Args: args}}
 		default:
 			fmt.Println("Very weird that we are here, type is ", t)
 		}
