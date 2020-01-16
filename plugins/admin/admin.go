@@ -4,6 +4,8 @@ import (
 	"testbot/events"
 	"testbot/log"
 
+	"testbot/players"
+
 	"testbot/plugins"
 	"testbot/plugins/commands"
 )
@@ -16,8 +18,11 @@ func Init() chan<- events.Event {
 	if (!commands.RegisterCommand("bonjour", onBonjour, 1)) {
 		log.Log(log.LOG_ERROR, "Plugin COMMAND was not initialized !")
 	}
-	commands.RegisterCommand("iamgod", onIamgod, 1)
-
+	pls := players.GetPlayersOfLevel(100)
+	if (len(pls) == 0) {
+		commands.RegisterCommand("iamgod", onIamgod, 1) //Only register this command if no superadmin was created
+	}
+	commands.RegisterCommand("say", onSay, 20)
 	in := make(chan events.Event)
 	go runner(in)
 	return in

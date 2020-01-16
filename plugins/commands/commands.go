@@ -32,15 +32,19 @@ func RegisterCommand(command string, fn func(int, string), minlevel int) bool{
 	return false
 }
 
+func DeleteCommand(command string) {
+	delete(handlers, command)
+}
+
 func Init() chan<- events.Event{
 	log.Log(log.LOG_INFO, "Starting plugin Command")
 
 	handlers = make(map[string]commandHandler)
-	RegisterCommand("help", onHelp, 1)
-
 	in := make(chan events.Event)
 	go runner(in)
 	initialised = true
+
+	RegisterCommand("help", onHelp, 1)
 	return in
 }
 
@@ -50,6 +54,7 @@ func runner(evts <-chan events.Event) {
 		evt := <-evts
 		switch t := evt.(type) {
 		case events.EventSay:
+			log.Log(log.LOG_VERBOSE, "Command plugin received", t)
 			tmp := strings.SplitN(t.Text, " ", 2) //TODO: put this stuff in a function
 			cmd := tmp[0]
 			if (len(cmd) == 0) {
