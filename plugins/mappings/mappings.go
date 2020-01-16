@@ -7,10 +7,12 @@ import (
 	"testbot/plugins"
 
 	"testbot/plugins/commands"
+	"testbot/plugins/admin"
 )
 
 var Runners = map[plugins.Plugin](func (evts <-chan events.Event, back chan<- plugins.PassEvent)){
-	plugins.PLUGIN_CMD: commands.Runner}
+	plugins.PLUGIN_CMD: commands.Runner,
+	plugins.PLUGIN_ADMIN: admin.Runner}
 
 var deps = map[plugins.Plugin][]events.EventType {
 	plugins.PLUGIN_CMD: {events.EVT_CLIENT_SAY} }
