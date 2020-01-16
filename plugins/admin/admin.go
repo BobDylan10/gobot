@@ -4,8 +4,11 @@ import (
 	"testbot/events"
 	"testbot/log"
 
+	"testbot/plugins"
 	"testbot/plugins/commands"
 )
+
+var Plug = plugins.Plugin{Init: Init, Deps: []events.EventType{}}
 
 func Init() chan<- events.Event {
 	log.Log(log.LOG_INFO, "Starting plugin Admin")

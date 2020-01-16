@@ -4,21 +4,19 @@ package mappings
 
 import (
 	"testbot/events"
+
 	"testbot/plugins"
 
 	"testbot/plugins/commands"
 	"testbot/plugins/admin"
 )
 
-var Inits = map[plugins.Plugin](func () chan<- events.Event){
-	plugins.PLUGIN_CMD: commands.Init,
-	plugins.PLUGIN_ADMIN: admin.Init}
+var Plugins = map[plugins.PluginID]plugins.Plugin{
+	plugins.PLUGIN_CMD: commands.Plug,
+	plugins.PLUGIN_ADMIN: admin.Plug}
 
-var deps = map[plugins.Plugin][]events.EventType {
-	plugins.PLUGIN_CMD: {events.EVT_CLIENT_SAY} }
-
-func IsDep(p plugins.Plugin, e events.EventType) bool{
-	for _, v := range deps[p] {
+func IsDep(p plugins.PluginID, e events.EventType) bool{
+	for _, v := range Plugins[p].Deps {
 		if (v == e) {
 			return true
 		}

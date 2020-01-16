@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"testbot/plugins"
+
 	"testbot/events"
 	"strings"
 	"testbot/log"
@@ -9,6 +11,8 @@ import (
 
 	"testbot/server"
 )
+
+var Plug = plugins.Plugin{Init: Init, Deps: []events.EventType{events.EVT_CLIENT_SAY}}
 
 var initialised = false
 var handlers map[string] commandHandler

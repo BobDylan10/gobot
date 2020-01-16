@@ -59,22 +59,23 @@ func pluginSchedule(evt events.Event) {
 	players.CollectEvents(evt)
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
+		//TODO: build the list of plugins to be scheduled per event to avoid computation
 		if (mappings.IsDep(plugin, evt.EventType())) {
 			evtmap<-evt
 		}
 	}
 }
 
-var pluginInBuffers map[plugins.Plugin](chan<- events.Event)
+var pluginInBuffers map[plugins.PluginID](chan<- events.Event)
 
 func initPlugins() {
 	//Start runners
-	pluginInBuffers = make(map[plugins.Plugin](chan<- events.Event))
+	pluginInBuffers = make(map[plugins.PluginID](chan<- events.Event))
 
 	players.Init()
-	for plugin, init := range mappings.Inits {
-		fmt.Println("Initializing", plugin)
-		pluginInBuffers[plugin] = init()
+	for pluginid, plugin := range mappings.Plugins {
+		fmt.Println("Initializing", pluginid)
+		pluginInBuffers[pluginid] = plugin.Init()
 		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println("pluginInBuffer, ", pluginInBuffers)
