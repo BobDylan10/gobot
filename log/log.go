@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strconv"
 	"os"
+	"fmt"
 )
 
 var lock     sync.Mutex // ensures atomic writes; protects the following fields
@@ -40,17 +41,15 @@ func level(l Loglevel) string {
 }
 
 
-func Log(lvl Loglevel, str string) {
-	output := make([]byte, 0)
-	output = append(output, level(lvl)...)
+func Log(lvl Loglevel, a ...interface{}) {
+	header := ""
+	header += level(lvl)
 
 	_, file, line, ok := runtime.Caller(1)
 	finfo := "???: "
 	if (ok) {
 		finfo = file + " " + strconv.Itoa(line) + ": "
 	}
-	output = append(output, finfo...)
-	output = append(output, str...)
-	output = append(output, '\n')
-	writer.Write(output) //I hope this is thread-safe (?)
+	header += finfo
+	fmt.Fprintln(writer, header, a)
 }
