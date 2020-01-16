@@ -11,6 +11,7 @@ import (
 
 var lock     sync.Mutex // ensures atomic writes; protects the following fields
 var writer    io.Writer = os.Stdout  // destination for output
+var minPrint Loglevel = LOG_VERBOSE
 
 type Loglevel int
 
@@ -54,5 +55,7 @@ func Log(lvl Loglevel, a ...interface{}) {
 		finfo = file + " " + strconv.Itoa(line) + ": "
 	}
 	header += finfo
-	fmt.Fprintln(writer, header, a)
+	if (lvl >= minPrint) {
+		fmt.Fprintln(writer, header, a)
+	}
 }

@@ -50,7 +50,6 @@ func runner(evts <-chan events.Event) {
 		evt := <-evts
 		switch t := evt.(type) {
 		case events.EventSay:
-			log.Log(log.LOG_DEBUG, "Received a SAY event inside command plugin saying", t.Text)
 			tmp := strings.SplitN(t.Text, " ", 2) //TODO: put this stuff in a function
 			cmd := tmp[0]
 			if (len(cmd) == 0) {
@@ -70,7 +69,7 @@ func runner(evts <-chan events.Event) {
 			if pl, ok := players.GetPlayer(t.Client); ok {
 				if handler, ok := handlers[cmd]; ok {
 					if (handler.level <= pl.GetPlayerLevel()) {
-						log.Log(log.LOG_DEBUG, "Executing command", cmd)
+						log.Log(log.LOG_VERBOSE, "Executing command", cmd)
 						handler.handler(t.Client, args) //We execute the associated handler
 					} else {
 						log.Log(log.LOG_VERBOSE, "Player tried to execute command", cmd, "without right priviledges")
