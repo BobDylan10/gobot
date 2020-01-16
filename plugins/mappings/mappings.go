@@ -10,7 +10,7 @@ import (
 	"testbot/plugins/admin"
 )
 
-var Runners = map[plugins.Plugin](func (evts <-chan events.Event, back chan<- plugins.PassEvent)){
+var Runners = map[plugins.Plugin](func (evts <-chan events.Event)){
 	plugins.PLUGIN_CMD: commands.Runner,
 	plugins.PLUGIN_ADMIN: admin.Runner}
 

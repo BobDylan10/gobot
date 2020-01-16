@@ -86,3 +86,39 @@ func initTable() {
 		log.Log(log.LOG_ERROR, "Error initializing player table")
 	}
 }
+
+func GetPlayersOfLevel(lvl int) []player{
+	res := []player{}
+	stmtGetLvl := database.Prepare("SELECT player_id, alias, guid FROM players WHERE level = ? ORDER BY RAND() LIMIT 10")
+	defer stmtGetLvl.Close()
+
+	rows, err := stmtGetLvl.Query(lvl)
+	if err != nil {
+		if (err == sql.ErrNoRows) {
+			return res
+		} else {
+			log.Log(log.LOG_ERROR, "Error querying players by level")
+		}
+	}
+	for rows.Next() {
+		var pl player
+		rows.Scan(&pl.did, &pl.name, &pl.guid)
+		res = append(res, pl)
+	}
+	return res
+}
+
+func (pl *player) SetPlayerLevel(lvl int) {
+	log.Log(log.LOG_INFO, "Updating player level with did", pl.did, "to", lvl)
+	pl.level = lvl
+	stmtUp := database.Prepare(
+		`UPDATE players
+		SET
+			level = ?
+		WHERE player_id = ?;`) // ? = placeholder
+	defer stmtUp.Close()
+	_, err := stmtUp.Exec(lvl, pl.did)
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error update player with new level", pl.did)
+	}
+}
