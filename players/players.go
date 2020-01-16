@@ -49,7 +49,8 @@ func CollectEvents(e events.Event) {
 				//It's a bot ?
 			}
 		}
-		
+	case events.EventClientDisconnect:
+		delete(players, t.Client)
 	default:
 		log.Log(log.LOG_DEBUG, "Unexpected type", t)
 	}

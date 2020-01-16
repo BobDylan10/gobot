@@ -6,6 +6,8 @@ import (
     "strings"
     "testbot/events"
     "strconv"
+
+    "testbot/log"
 )
 
 
@@ -38,7 +40,6 @@ func clearLine(line string) string {
 
 func getLineParts(line string) (map[string] string, error) {
 	line = clearLine(line)
-    //fmt.Println(line)
 	for _, v := range _lineFormats {
 		form := regexp.MustCompile(v)
 		if (form.MatchString(line)) {
@@ -49,6 +50,7 @@ func getLineParts(line string) (map[string] string, error) {
 }
 
 func createEvent(args map[string] string) events.Event {
+    log.Log(log.LOG_DEBUG, "Line to map gave", args)
     action := strings.ToLower(args["action"])
     data := args["data"]
     switch action {
@@ -64,9 +66,17 @@ func createEvent(args map[string] string) events.Event {
         data = tmp[1]
         pid, err := strconv.Atoi(cid)
         if err != nil {
-            fmt.Println("Error", err, "converting cid", cid)
+            log.Log(log.LOG_ERROR, "Error converting cid", cid)
         }
         return events.EventClientInfo{Client: pid, Data: parseUserInfo(data)}
+    case "clientdisconnect":
+        cid := data
+        pid, err := strconv.Atoi(cid)
+        if err != nil {
+            log.Log(log.LOG_ERROR, "Error converting cid", cid)
+        }
+        return events.EventClientDisconnect{Client: pid}
+
     default:
         return nil
     }

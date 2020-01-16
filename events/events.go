@@ -7,20 +7,10 @@ type EventType int
 
 const (
 	EVT_CLIENT_BEGIN EventType = iota
-	EVT_CLIENT_KILL
 	EVT_CLIENT_SAY
+	EVT_CLIENT_DISCONNECT
 	EVT_CLIENT_INFO
-	EVT_CLIENT_COMMAND
-)
-
-//Indices for Event elements
-type EventIndex int
-
-const (
-	EVT_IND_CLIENT EventType = iota
-	EVT_IND_TARGET
-	EVT_IND_TEXT
- EVT_IND_DICT
+	EVT_CLIENT_KILL
 )
 
 type Event interface{
@@ -43,12 +33,9 @@ func (e EventClientInfo) EventType() EventType {
 	return EVT_CLIENT_INFO
 }
 
-
-type EventCommand struct {
+type EventClientDisconnect struct {
 	Client int
-	Command string
-	Args string
 }
-func (e EventCommand) EventType() EventType {
-	return EVT_CLIENT_COMMAND
+func (e EventClientDisconnect) EventType() EventType {
+	return EVT_CLIENT_DISCONNECT
 }
