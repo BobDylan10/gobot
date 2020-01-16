@@ -94,6 +94,7 @@ func pluginSchedule(evt events.Event) {
 	}
 }
 
+//Not sure if this is really needed at this point. Inter plugin communication can be handled at the plugin layer directly
 func restransmitEvents() {
 	for {
 		a := <-outEvents
@@ -119,12 +120,12 @@ func initPlugins() {
 	for plugin, runner := range mappings.Runners {
 		fmt.Println("Initializing", plugin)
 		pluginInBuffers[plugin] = newChan()
-		go runner(pluginInBuffers[plugin], outEvents)
+		go runner(pluginInBuffers[plugin], outEvents) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
 	}
 	fmt.Println("pluginInBuffer, ", pluginInBuffers)
 	fmt.Println("testMap, ", testMap)
 
-	go restransmitEvents()
+	//go restransmitEvents()
 }
 
 func main() {
@@ -132,7 +133,7 @@ func main() {
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
 	initPlugins()
 
-	database.SetDatabase("gobot:gobot@/gobot_db") //Init database
+	database.SetDatabase("gobot:gobot@/gobot_db?parseTime=true") //Init database
 	
 	server.Init()
 	//server.CallServer("say \"^2Reader starting up\"")
