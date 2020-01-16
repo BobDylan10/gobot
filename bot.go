@@ -117,6 +117,8 @@ func initPlugins() {
 	testMap = make(map[plugins.Plugin]int)
 	testMap[plugins.PLUGIN_CMD] = 3
 
+
+	players.Init()
 	for plugin, runner := range mappings.Runners {
 		fmt.Println("Initializing", plugin)
 		pluginInBuffers[plugin] = newChan()
