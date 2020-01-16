@@ -4,9 +4,11 @@ package rcon
 
 import (
 	"net"
-	"fmt"
 	"strings"
 	"time"
+	"fmt"
+
+	"testbot/log"
 )
 const rconsendstring = "\xff\xff\xff\xffrcon \"%s\" %s\n"
 const rconreplystring = "\xff\xff\xff\xffprint\n"
@@ -24,18 +26,18 @@ func RconRunner(done <-chan bool, commands <-chan string, answers chan<- string)
 	defer conn.Close()
 
 	if err != nil {
-        fmt.Printf("Some error %v", err)
+		log.Log(log.LOG_ERROR, "Error", err)
         return
 	}
 	for {
 		select {
 		case cmd := <-commands:
-			fmt.Println("Command: ", cmd)
+			log.Log(log.LOG_DEBUG, "Command: ", cmd)
 			conn.Write([]byte(fmt.Sprintf(rconsendstring, password, cmd)))
 			buffer := make([]byte, maxBufferSize)
 			n, err := conn.Read(buffer)
 			if err != nil {
-				fmt.Printf("Some error %v", err)
+				log.Log(log.LOG_ERROR, "Error", err)
 				return
 			}
 			ans := string(buffer[0:n])

@@ -4,6 +4,7 @@ import (
 	"testbot/server/rcon"
 	"regexp"
 	"strings"
+	"testbot/log"
 )
 
 var (
@@ -21,6 +22,7 @@ func Close() {
 }
 
 func CallServer(command string) string{
+	log.Log(log.LOG_DEBUG, "Executing command", command)
 	cmds<-command
 	return <-aws
 }
@@ -62,6 +64,7 @@ func getPlayers() { //Quickfix for Urt, should be done inside rcon
 	}
 }
 
-func f2(command string) string {
-	return "b"
+func Say(tosay string) {
+	CallServer("say" + tosay)
+	//Is it necessary to return something ?
 }
