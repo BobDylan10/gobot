@@ -18,10 +18,10 @@ type player struct {
 	//Map for all extra attributes ? Seems goooooooood
 }
 
-var players map[int]player //Players indexed by their current player ID
+var players map[int]*player //Players indexed by their current player ID
 
 func Init() {
-	players = make(map[int]player)
+	players = make(map[int]*player)
 	initTable()
 }
 
@@ -42,7 +42,7 @@ func CollectEvents(e events.Event) {
 					pl := &player{}
 					getPlayer(guid, name, pl)
 					log.Log(log.LOG_DEBUG, "Player with Database id", pl.did, ", name", pl.name)
-					players[t.Client] = *pl
+					players[t.Client] = pl
 					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
 				}
 			} else {
@@ -51,15 +51,15 @@ func CollectEvents(e events.Event) {
 		}
 		
 	default:
-		log.Log(log.LOG_INFO, "Unexpected type", t)
+		log.Log(log.LOG_DEBUG, "Unexpected type", t)
 	}
 }
 
-func GetPlayer(clientid int) (player, bool) {
+func GetPlayer(clientid int) (*player, bool) {
 	if pl, ok := players[clientid]; ok {
 		return pl, true
 	}
-	return player{}, false
+	return &player{}, false
 }
 
 func (pl *player) GetPlayerLevel() int {
