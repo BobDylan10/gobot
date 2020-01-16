@@ -100,7 +100,7 @@ func main() {
 	database.SetDatabase("gobot:gobot@/gobot_db?parseTime=true") //Init database
 	initPlugins()
 	server.Init()
-	//server.Say("^5 Bot starting up")
+	server.Say("^5 Bot starting up")
 	//test := make(map[int](chan string))
 	go reader(path)
 	//server.CallServer("kick 0")
