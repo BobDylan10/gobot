@@ -7,16 +7,24 @@ import (
 	"fmt"
 )
 
+var initialised = false
 var handlers map[string]func(string, string)
 
 //This function allows a plugin to register a command, provided an handler in the form func(command, arguments)
-func RegisterCommand(command string, fn func(string, string)) {
-	handlers[command] = fn
+//However, we need a depencies system to avoid plugins trying to register plugins before it was actually initialised
+func RegisterCommand(command string, fn func(string, string)) bool{
+	if (initialised) {
+		handlers[command] = fn
+		return true
+	}
+	return false
 }
 
 func Runner(evts <-chan events.Event, back chan<- plugins.PassEvent) {
-
 	//Beware of the deadlock with back !!!
+
+	handlers = make(map[string]func(string, string))
+	initialised = true
 	fmt.Println("Starting command plugin,", evts, back)
 	for {
 		evt := <-evts
