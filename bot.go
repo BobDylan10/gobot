@@ -65,7 +65,7 @@ func pluginSchedule(evt events.Event) {
 	}
 }
 
-var pluginInBuffers map[plugins.Plugin](chan events.Event)
+var pluginInBuffers map[plugins.Plugin](chan<- events.Event)
 var testMap map[plugins.Plugin]int
 
 func newChan() (chan events.Event) {
@@ -74,16 +74,16 @@ func newChan() (chan events.Event) {
 
 func initPlugins() {
 	//Start runners
-	pluginInBuffers = make(map[plugins.Plugin](chan events.Event))
+	pluginInBuffers = make(map[plugins.Plugin](chan<- events.Event))
 	testMap = make(map[plugins.Plugin]int)
 	testMap[plugins.PLUGIN_CMD] = 3
 
 
 	players.Init()
-	for plugin, runner := range mappings.Runners {
+	for plugin, init := range mappings.Inits {
 		fmt.Println("Initializing", plugin)
-		pluginInBuffers[plugin] = newChan()
-		go runner(pluginInBuffers[plugin]) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
+		pluginInBuffers[plugin] = init()
+		//go runner(pluginInBuffers[plugin]) //TODO: call an Init function that return an inc channel that will be used to communicate with the plugin
 		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println("pluginInBuffer, ", pluginInBuffers)

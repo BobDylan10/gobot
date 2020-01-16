@@ -10,9 +10,9 @@ import (
 	"testbot/plugins/admin"
 )
 
-var Runners = map[plugins.Plugin](func (evts <-chan events.Event)){
-	plugins.PLUGIN_CMD: commands.Runner,
-	plugins.PLUGIN_ADMIN: admin.Runner}
+var Inits = map[plugins.Plugin](func () chan<- events.Event){
+	plugins.PLUGIN_CMD: commands.Init,
+	plugins.PLUGIN_ADMIN: admin.Init}
 
 var deps = map[plugins.Plugin][]events.EventType {
 	plugins.PLUGIN_CMD: {events.EVT_CLIENT_SAY} }

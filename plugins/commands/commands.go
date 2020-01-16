@@ -28,13 +28,20 @@ func RegisterCommand(command string, fn func(int, string), minlevel int) bool{
 	return false
 }
 
-func Runner(evts <-chan events.Event) {
-	//Beware of the deadlock with back !!!
+func Init() chan<- events.Event{
+	log.Log(log.LOG_INFO, "Starting plugin Command")
 
 	handlers = make(map[string]commandHandler)
-	initialised = true
 	RegisterCommand("help", onHelp, 1)
-	log.Log(log.LOG_INFO, "Starting command plugin,", evts)
+
+	in := make(chan events.Event)
+	go runner(in)
+	initialised = true
+	return in
+}
+
+func runner(evts <-chan events.Event) {
+	//Beware of the deadlock with back !!!
 	for {
 		evt := <-evts
 		switch t := evt.(type) {
