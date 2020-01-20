@@ -60,6 +60,10 @@ func (p plugininside) IsDep(e events.EventType) bool{
 	return false
 }
 
+func (p plugininside) GetName() string {
+	return "commands"
+}
+
 func runner(evts <-chan events.Event) {
 	//Beware of the deadlock with back !!!
 	for {

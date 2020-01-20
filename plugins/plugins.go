@@ -21,4 +21,5 @@ const (
 type Plugin interface {
 	Init() chan<- events.Event
 	IsDep(e events.EventType) bool
+	GetName() string
 }

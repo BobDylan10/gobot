@@ -73,7 +73,7 @@ func initPlugins() {
 
 	players.Init()
 	for pluginid, plugin := range plugins.Plugins {
-		fmt.Println("Initializing", pluginid)
+		log.Log(log.LOG_INFO, "Initializing plugin", plugin.GetName())
 		pluginInBuffers[pluginid] = plugin.Init()
 		time.Sleep(100 * time.Millisecond)
 	}
