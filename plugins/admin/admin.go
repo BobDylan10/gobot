@@ -6,13 +6,14 @@ import (
 
 	"testbot/players"
 
-	"testbot/plugins"
 	"testbot/plugins/commands"
 )
 
-var Plug = plugins.Plugin{Init: Init, Deps: []events.EventType{}}
+type plugininside struct{}
 
-func Init() chan<- events.Event {
+var Plug plugininside = plugininside{}
+
+func (p plugininside) Init() chan<- events.Event {
 	log.Log(log.LOG_INFO, "Starting plugin Admin")
 
 	if (!commands.RegisterCommand("bonjour", onBonjour, 1)) {
@@ -26,6 +27,17 @@ func Init() chan<- events.Event {
 	in := make(chan events.Event)
 	go runner(in)
 	return in
+}
+
+var deps []events.EventType = []events.EventType{}
+
+func (p plugininside) IsDep(e events.EventType) bool{
+	for _, v := range deps {
+		if (v == e) {
+			return true
+		}
+	}
+	return false
 }
 
 func runner(evts <-chan events.Event) {

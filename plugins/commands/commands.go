@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"testbot/plugins"
 
 	"testbot/events"
 	"strings"
@@ -12,7 +11,9 @@ import (
 	"testbot/server"
 )
 
-var Plug = plugins.Plugin{Init: Init, Deps: []events.EventType{events.EVT_CLIENT_SAY}}
+type plugininside struct{}
+
+var Plug plugininside = plugininside{}
 
 var initialised = false
 var handlers map[string] commandHandler
@@ -36,7 +37,7 @@ func DeleteCommand(command string) {
 	delete(handlers, command)
 }
 
-func Init() chan<- events.Event{
+func (p plugininside) Init() chan<- events.Event{
 	log.Log(log.LOG_INFO, "Starting plugin Command")
 
 	handlers = make(map[string]commandHandler)
@@ -46,6 +47,17 @@ func Init() chan<- events.Event{
 
 	RegisterCommand("help", onHelp, 1)
 	return in
+}
+
+var deps []events.EventType = []events.EventType{events.EVT_CLIENT_SAY}
+
+func (p plugininside) IsDep(e events.EventType) bool{
+	for _, v := range deps {
+		if (v == e) {
+			return true
+		}
+	}
+	return false
 }
 
 func runner(evts <-chan events.Event) {

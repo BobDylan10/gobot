@@ -16,8 +16,7 @@ import (
 	"testbot/parsers/iourt43"
 	"testbot/server"
 	"testbot/events"
-
-	"testbot/plugins/mappings"
+	
 	"testbot/plugins"
 
 	"testbot/players"
@@ -60,7 +59,7 @@ func pluginSchedule(evt events.Event) {
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
 		//TODO: build the list of plugins to be scheduled per event to avoid computation
-		if (mappings.IsDep(plugin, evt.EventType())) {
+		if (plugins.Plugins[plugin].IsDep(evt.EventType())) {
 			evtmap<-evt
 		}
 	}
@@ -73,7 +72,7 @@ func initPlugins() {
 	pluginInBuffers = make(map[plugins.PluginID](chan<- events.Event))
 
 	players.Init()
-	for pluginid, plugin := range mappings.Plugins {
+	for pluginid, plugin := range plugins.Plugins {
 		fmt.Println("Initializing", pluginid)
 		pluginInBuffers[pluginid] = plugin.Init()
 		time.Sleep(100 * time.Millisecond)
