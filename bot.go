@@ -2,7 +2,6 @@ package main
 
 import (
     "bufio"
-    "fmt"
 	"os"
 	"time"
 
@@ -35,18 +34,18 @@ func reader(path string) {
 
 	for {
 		select {
-			case <-read_rate.C:
-				scanner = bufio.NewScanner(file)
-				for scanner.Scan() {
-					txt := scanner.Text()
-					e := iourt43.ParseLine(txt)
-					if (e != nil) {
-						pluginSchedule(e)
-					}
+		case <-read_rate.C:
+			scanner = bufio.NewScanner(file)
+			for scanner.Scan() {
+				txt := scanner.Text()
+				e := iourt43.ParseLine(txt)
+				if (e != nil) {
+					pluginSchedule(e)
 				}
-				if err := scanner.Err(); err != nil {
-					log.Log(log.LOG_ERROR, err.Error())
-				}
+			}
+			if err := scanner.Err(); err != nil {
+				log.Log(log.LOG_ERROR, err.Error())
+			}
 		}
 	}
 }
@@ -60,6 +59,7 @@ func pluginSchedule(evt events.Event) {
 	for plugin, evtmap := range pluginInBuffers {
 		//TODO: build the list of plugins to be scheduled per event to avoid computation
 		if (plugins.Plugins[plugin].IsDep(evt.EventType())) {
+			//TODO: Here we should add a timeout incase a plugin is stuck
 			evtmap<-evt
 		}
 	}
@@ -77,9 +77,6 @@ func initPlugins() {
 		pluginInBuffers[pluginid] = plugin.Init()
 		time.Sleep(100 * time.Millisecond)
 	}
-	fmt.Println("pluginInBuffer, ", pluginInBuffers)
-
-	//go restransmitEvents()
 }
 
 func main() {
@@ -99,7 +96,7 @@ func main() {
 
 	go func() {
 		<-signals
-		fmt.Println("Exiting bot")
+		log.Log(log.LOG_INFO, "Exiting bot")
 		go database.CloseDatabase() //Launched in goroutines incase they are frozen for some reason
 		go server.Close()
 
