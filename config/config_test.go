@@ -6,6 +6,8 @@ import (
 )
 
 func TestDatabase(t *testing.T) {
-	res := readFile("config.json")
-	fmt.Println(res["main"])
+	loadCfg("config.json")
+	s := NewCfg("main")
+	fmt.Println(s.GetString("prefix", "default"))
+	fmt.Println(s.GetFloat("delay", 123))
 }

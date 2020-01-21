@@ -4,9 +4,7 @@
         "dsn": "gobot:gobot@/gobot_db",
         "delay": 500
     },
-    "plugins": {
-        "commands": {
-            "commandPrefix": "!"
-        }
+    "plugin_command": {
+        "commandPrefix": "!"
     }
 }
