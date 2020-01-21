@@ -50,6 +50,7 @@ func CollectEvents(e events.Event) {
 			}
 		}
 	case events.EventClientDisconnect:
+		//TODO: we need to do better, because other plugins cannot manage this event properly if the player is deleted before they have access to it
 		delete(players, t.Client)
 	default:
 		log.Log(log.LOG_DEBUG, "Unexpected type", t)
