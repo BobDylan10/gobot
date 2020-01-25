@@ -123,3 +123,15 @@ func (pl *player) SetPlayerLevel(lvl int) {
 		log.Log(log.LOG_ERROR, "Error update player with new level", pl.did)
 	}
 }
+
+func GetConnectedPlayers() ([]int, []player) {
+	indices := make([]int, len(players))
+	ret := make([]player, len(players))
+	c := 0
+	for i, pl := range players {
+		ret[c] = *pl
+		indices[c] = i
+		c++
+	}
+	return indices, ret
+}

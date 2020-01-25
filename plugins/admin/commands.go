@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"strconv"
 
 	"testbot/plugins/commands"
 	"testbot/server"
@@ -24,6 +25,27 @@ func onIamgod(id int, args string) {
 		commands.DeleteCommand("iamgod")
 	} else {
 		log.Log(log.LOG_ERROR, "Client ID does not exist when doing a lookup")
+	}
+}
+
+func playerToString(ind int, name string, level int) string{
+	ret := strconv.FormatInt(int64(ind), 10)
+	ret += ": "
+	ret += name
+	ret += " ["
+	ret += strconv.FormatInt(int64(level), 10)
+	ret += "]"
+	return ret
+}
+
+func onStatus(id int, args string) {
+	server.Say("Players connected:")
+	indices, pls := players.GetConnectedPlayers()
+	if (len(indices) != len(pls)) {
+		log.Log(log.LOG_FATAL, "Players and indices don't have the same size !")
+	}
+	for i := 0; i < len(indices); i++ {
+		server.Say(playerToString(indices[i], pls[i].GetPlayerName(), pls[i].GetPlayerLevel()))
 	}
 }
 

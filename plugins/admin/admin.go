@@ -24,6 +24,7 @@ func (p plugininside) Init() chan<- events.Event {
 		commands.RegisterCommand("iamgod", onIamgod, 1) //Only register this command if no superadmin was created
 	}
 	commands.RegisterCommand("say", onSay, 20)
+	commands.RegisterCommand("status", onStatus, 20)
 	in := make(chan events.Event)
 	go runner(in)
 	return in

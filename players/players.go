@@ -75,3 +75,6 @@ func (pl *player) GetPlayerLevel() int {
 	return pl.level
 }
 
+func (pl *player) GetPlayerName() string {
+	return pl.name
+}
