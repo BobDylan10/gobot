@@ -15,6 +15,7 @@ type player struct {
 	connections int
 	lastConnection time.Time
 	guid string //The game unique ID
+	toBeDeleted bool
 	//Map for all extra attributes ? Seems goooooooood
 }
 
@@ -26,6 +27,13 @@ func Init() {
 }
 
 func CollectEvents(e events.Event) {
+	//First, we remove the players to be deleted
+	for i, pl := range players {
+		if pl.toBeDeleted {
+			delete(players, i)
+		}
+	}
+	//Then we can do our work normally
 	switch t := e.(type) {
 	case events.EventClientInfo:
 		//We check that the player is not already inside the connected players
@@ -50,8 +58,7 @@ func CollectEvents(e events.Event) {
 			}
 		}
 	case events.EventClientDisconnect:
-		//TODO: we need to do better, because other plugins cannot manage this event properly if the player is deleted before they have access to it
-		delete(players, t.Client)
+		players[t.Client].toBeDeleted = true
 	default:
 		log.Log(log.LOG_DEBUG, "Unexpected type", t)
 	}

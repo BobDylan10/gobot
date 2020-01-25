@@ -39,6 +39,7 @@ func getPlayer(guid string, name string, player *player){
 	player.lastConnection = date
 	player.name = name
 	player.guid = guid
+	player.toBeDeleted = false
 }
 
 func createPlayer(guid string, name string) {
