@@ -4,6 +4,7 @@ import (
     "bufio"
 	"os"
 	"time"
+	"flag"
 
 	"os/signal"
 	"syscall"
@@ -79,8 +80,15 @@ func initPlugins() {
 	}
 }
 
+func argsParse() {
+	cfgPath := flag.String("cfg", "config/config.json", "The path to the config file")
+	flag.Parse()
+	log.Log(log.LOG_INFO, "Config file at", *cfgPath)
+}
+
 func main() {
 	log.Log(log.LOG_INFO, "Starting b0t")
+	argsParse()
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
 	
 
