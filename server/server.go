@@ -13,6 +13,8 @@ var (
 	aws = make(chan string)
 )
 
+const lineLength = 80
+
 func Init() {
 	go rcon.RconRunner(done, cmds, aws)
 }
@@ -64,9 +66,26 @@ func getPlayers() { //Quickfix for Urt, should be done inside rcon
 	}
 }
 
+func wrap(longstring string) []string{
+	res := make([]string, 0)
+	parts := len(longstring)/lineLength
+	i := 0
+	for i = 0; i < parts; i++ {
+		res = append(res, longstring[lineLength * i: lineLength * (i + 1)])
+	}
+	rest := len(longstring) % lineLength
+	if rest != 0 {
+		res = append(res, longstring[lineLength * i: lineLength * i + rest])
+	}
+	return res
+}
+
 func Say(tosay string) {
 	log.Log(log.LOG_VERBOSE, "Saying", tosay)
-	CallServer("say \"" + tosay + "\"")
+	lines := wrap(tosay)
+	for _, line := range lines {
+		CallServer("say \"" + line + "\"")
+	}
 	//Is it necessary to return something ?
 }
 
