@@ -29,6 +29,8 @@ func reader(path string) {
 	}
 	defer file.Close()
 
+	file.Seek(0, 2) //Read from the end of file
+
 	scanner := bufio.NewScanner(file)
 
 	read_rate := time.NewTicker(500 * time.Millisecond)
