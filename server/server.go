@@ -75,3 +75,10 @@ func BigText(tosay string) {
 	CallServer("bigtext \"Bonjour " + tosay + "\"")
 	//Is it necessary to return something ?
 }
+
+func GetMaps() []string {
+	log.Log(log.LOG_VERBOSE, "Getting maps")
+	maps := CallServer("fdir *.bsp")
+	ret := strings.Split(maps, "\n")
+	return ret
+}

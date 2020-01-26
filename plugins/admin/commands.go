@@ -52,3 +52,13 @@ func onStatus(id int, args string) {
 func onSay(id int, args string) {
 	server.Say("This was tested")
 }
+
+func onMaps(id int, args string) {
+	maps := server.GetMaps()
+	res := "Available maps: "
+	for _, mp := range maps {
+		res += mp
+		res += ", "
+	}
+	server.Say(res)
+}
