@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS connectiontimes (
+   id INT AUTO_INCREMENT PRIMARY KEY,
+   player_id INT NOT NULL,
+   c_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   minutes FLOAT NOT NULL,
+   FOREIGN KEY (player_id)
+      REFERENCES players(player_id)
+) ENGINE=InnoDB;
