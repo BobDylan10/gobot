@@ -75,9 +75,9 @@ func initPlugins() {
 	pluginInBuffers = make(map[plugins.PluginID](chan<- events.Event))
 
 	players.Init()
-	for pluginid, plugin := range plugins.Plugins {
-		log.Log(log.LOG_INFO, "Initializing plugin", plugin.GetName())
-		pluginInBuffers[pluginid] = plugin.Init()
+	for _, pluginid := range plugins.GetPluginOrder() {
+		log.Log(log.LOG_INFO, "Initializing plugin", plugins.Plugins[pluginid].GetName())
+		pluginInBuffers[pluginid] = plugins.Plugins[pluginid].Init()
 		time.Sleep(100 * time.Millisecond)
 	}
 }
