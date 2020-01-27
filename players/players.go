@@ -54,7 +54,7 @@ func CollectEvents(e events.Event) {
 					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
 				}
 			} else {
-				//It's a bot ?
+				//TODO: It's a bot
 			}
 		}
 	case events.EventClientDisconnect:
@@ -77,4 +77,8 @@ func (pl *player) GetPlayerLevel() int {
 
 func (pl *player) GetPlayerName() string {
 	return pl.name
+}
+
+func (pl *player) IsBot() bool {
+	return pl.isBot
 }
