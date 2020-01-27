@@ -101,3 +101,8 @@ func GetMaps() []string {
 	ret := strings.Split(maps, "\n")
 	return ret
 }
+
+func Reload() {
+	log.Log(log.LOG_INFO, "Reloading server.")
+	CallServer("reload")
+}
