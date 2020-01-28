@@ -30,7 +30,35 @@ func newTimeSpan(did int, minutes float64) {
 
 
 	_, err := stmtIns.Exec() // Insert tuples (i, i^2)
-		if err != nil {
-			log.Log(log.LOG_ERROR, "Error creating connection for", did, minutes)
-		}
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error creating connection for", did, minutes)
+	}
+}
+
+func addKillWeapon(pid int, wid int) {
+	s := `INSERT INTO table (player_id, wid, kills)
+VALUES (?, ?, 1)
+ON DUPLICATE KEY UPDATE
+	kills = VALUES(kills) + 1;`
+	stmtIns := database.Prepare(s)
+	defer stmtIns.Close()
+
+	_, err := stmtIns.Exec(pid, wid)
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error creating kill for", pid, wid)
+	}
+}
+
+func addDeathWeapon(pid int, wid int) {
+	s := `INSERT INTO table (player_id, wid, deaths)
+VALUES (?, ?, 1)
+ON DUPLICATE KEY UPDATE
+	deaths = VALUES(deaths) + 1;`
+	stmtIns := database.Prepare(s)
+	defer stmtIns.Close()
+
+	_, err := stmtIns.Exec(pid, wid)
+	if err != nil {
+		log.Log(log.LOG_ERROR, "Error creating death for", pid, wid)
+	}
 }
