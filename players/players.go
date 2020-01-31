@@ -17,6 +17,7 @@ type player struct {
 	guid string //The game unique ID
 	toBeDeleted bool
 	//Map for all extra attributes ? Seems goooooooood
+	attributes map[string]string
 }
 
 var players map[int]*player //Players indexed by their current player ID
@@ -48,8 +49,8 @@ func CollectEvents(e events.Event) {
 			if guid, present := t.Data["cl_guid"]; present {
 				if name, present := t.Data["name"]; present {
 					pl := &player{}
-					getPlayer(guid, name, pl)
-					log.Log(log.LOG_DEBUG, "Player with Database id", pl.did, ", name", pl.name)
+					getPlayer(guid, name, t.Data, pl)
+					log.Log(log.LOG_INFO, "Player with Database id", pl.did, ", name", pl.name, "attributes", pl.attributes)
 					players[t.Client] = pl
 					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
 				}
@@ -77,6 +78,10 @@ func (pl *player) GetPlayerLevel() int {
 
 func (pl *player) GetPlayerName() string {
 	return pl.name
+}
+
+func (pl *player) GetPlayerDid() int {
+	return pl.did
 }
 
 func (pl *player) IsBot() bool {

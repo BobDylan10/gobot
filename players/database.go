@@ -8,7 +8,7 @@ import (
 )
 
 //This function will always succeed, because it creates the player if it's not already on the database
-func getPlayer(guid string, name string, player *player){
+func getPlayer(guid string, name string, attributes map[string]string, player *player){
 	stmtOut := database.Prepare("SELECT player_id, alias, level, last_connection, connections FROM players WHERE guid = ?")
 	defer stmtOut.Close()
 
@@ -40,6 +40,7 @@ func getPlayer(guid string, name string, player *player){
 	player.name = name
 	player.guid = guid
 	player.toBeDeleted = false
+	player.attributes = attributes
 }
 
 func createPlayer(guid string, name string) {
