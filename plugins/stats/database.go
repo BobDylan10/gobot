@@ -29,9 +29,9 @@ func newTimeSpan(did int, minutes float64) {
 	defer stmtIns.Close() // Close the statement when we leave main() / the program terminates
 
 
-	_, err := stmtIns.Exec() // Insert tuples (i, i^2)
+	_, err := stmtIns.Exec(did, minutes)
 	if err != nil {
-		log.Log(log.LOG_ERROR, "Error creating connection for", did, minutes)
+		log.Log(log.LOG_ERROR, "Error creating connection for", did, minutes, err.Error())
 	}
 }
 

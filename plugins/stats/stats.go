@@ -20,6 +20,8 @@ func (p plugininside) Init() chan<- events.Event{
 
 	connectionTimes = make(map[int]time.Time)
 
+	initTable()
+
 	in := make(chan events.Event)
 	go runner(in)
 	return in
@@ -41,7 +43,10 @@ func runner(evts <-chan events.Event) {
 			if connectTime, ok := connectionTimes[t.Client]; ok {
 				duration := time.Now().Sub(connectTime).Minutes()
 				if (duration > 0) { //TODO: set this to a correct threshold (like 10 minutes with config)
-					newTimeSpan(t.Client, duration)
+					pl, ex := players.GetPlayer(t.Client)
+					if ex {
+						newTimeSpan(pl.GetPlayerDid(), duration)
+					}
 				}
 				delete(connectionTimes, t.Client)
 			}
