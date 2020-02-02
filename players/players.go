@@ -55,7 +55,8 @@ func CollectEvents(e events.Event) {
 					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
 				}
 			} else {
-				//TODO: It's a bot
+				bot := &player{did: -1, name: t.Data["name"], level: 0, isBot: true}
+				players[t.Client] = bot
 			}
 		}
 	case events.EventClientDisconnect:
