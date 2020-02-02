@@ -3,7 +3,7 @@ package stats
 import (
 	"testbot/events"
 	"testbot/players"
-
+	"testbot/parsers"
 	"testbot/log"
 	"time"
 )
@@ -50,13 +50,17 @@ func runner(evts <-chan events.Event) {
 				}
 				delete(connectionTimes, t.Client)
 			}
+		case events.EventClientKill:
+			killer, _ := players.GetPlayer(t.Killer)
+			victim, _ := players.GetPlayer(t.Victim)
+			log.Log(log.LOG_INFO, "Player", killer.GetPlayerName(), "killed", victim.GetPlayerName(), "with", parsers.KillWeapons[t.Weapon])
 		default:
 			log.Log(log.LOG_INFO, "Very weird that we are here, type is ", t)
 		}
 	}
 }
 
-var deps []events.EventType = []events.EventType{events.EVT_CLIENT_INFO, events.EVT_CLIENT_DISCONNECT}
+var deps []events.EventType = []events.EventType{events.EVT_CLIENT_INFO, events.EVT_CLIENT_DISCONNECT, events.EVT_CLIENT_KILL}
 
 func (p plugininside) IsDep(e events.EventType) bool{
 	for _, v := range deps {

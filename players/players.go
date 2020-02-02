@@ -44,7 +44,7 @@ func CollectEvents(e events.Event) {
 				log.Log(log.LOG_ERROR, "A player id was seen with a GUID different than in the database")
 			}
 		} else {
-			//We had the player to the connected player list
+			//We add the player to the connected player list
 			//Here we must lookup if we already know the user. If yes we grab his info, otherwise we create his entry in the database.
 			if guid, present := t.Data["cl_guid"]; present {
 				if name, present := t.Data["name"]; present {

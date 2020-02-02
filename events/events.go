@@ -39,3 +39,12 @@ type EventClientDisconnect struct {
 	func (e EventClientDisconnect) EventType() EventType {
 		return EVT_CLIENT_DISCONNECT
 	}
+
+type EventClientKill struct {
+		Killer int
+		Victim int
+		Weapon int
+	}
+	func (e EventClientKill) EventType() EventType {
+		return EVT_CLIENT_KILL
+	}

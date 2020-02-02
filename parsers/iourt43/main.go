@@ -76,7 +76,14 @@ func createEvent(args map[string] string) events.Event {
             log.Log(log.LOG_ERROR, "Error converting cid", cid)
         }
         return events.EventClientDisconnect{Client: pid}
-
+    case "kill":
+        killer, errk := strconv.Atoi(args["acid"])
+        victim, errv := strconv.Atoi(args["cid"])
+        weapon, errw := strconv.Atoi(args["aweap"])
+        if errk != nil || errv != nil || errw != nil {
+            log.Log(log.LOG_ERROR, "Error converting kill line integers")
+        }
+        return events.EventClientKill{Killer: killer, Victim: victim, Weapon:weapon}
     default:
         return nil
     }
