@@ -11,6 +11,7 @@ const (
 	EVT_CLIENT_DISCONNECT
 	EVT_CLIENT_INFO
 	EVT_CLIENT_KILL
+	EVT_GAME_INIT
 )
 
 type Event interface{
@@ -47,4 +48,11 @@ type EventClientKill struct {
 	}
 	func (e EventClientKill) EventType() EventType {
 		return EVT_CLIENT_KILL
+	}
+
+type EventInitGame struct {
+		Data map[string]string
+	}
+	func (e EventInitGame) EventType() EventType {
+		return EVT_GAME_INIT
 	}

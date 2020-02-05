@@ -68,7 +68,7 @@ func createEvent(args map[string] string) events.Event {
         if err != nil {
             log.Log(log.LOG_ERROR, "Error converting cid", cid)
         }
-        return events.EventClientInfo{Client: pid, Data: parseUserInfo(data)}
+        return events.EventClientInfo{Client: pid, Data: parseInfo(data)}
     case "clientdisconnect":
         cid := data
         pid, err := strconv.Atoi(cid)
@@ -84,6 +84,12 @@ func createEvent(args map[string] string) events.Event {
             log.Log(log.LOG_ERROR, "Error converting kill line integers")
         }
         return events.EventClientKill{Killer: killer, Victim: victim, Weapon:weapon}
+    case "initgame":
+        info := parseInfo(data)
+        cmap := info["mapname"]
+        delete(info, "mapname")
+        info["map"] = cmap
+        return events.EventInitGame{Data: info}
     default:
         return nil
     }
@@ -92,7 +98,7 @@ func createEvent(args map[string] string) events.Event {
 func ParseLine(line string) events.Event {
     r, e := getLineParts(line)
     if (e != nil) {
-        fmt.Printf("Error parsing line %s", line)
+        log.Log(log.LOG_ERROR, "Error parsing line", line)
     }
     //fmt.Println(r)
 	return createEvent(r)

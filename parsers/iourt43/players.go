@@ -4,7 +4,7 @@ import (
 	"regexp"
 )
 
-func parseUserInfo (data string) map[string]string {
+func parseInfo (data string) map[string]string {
 	if (data[0] != '\\') {
 		data = "\\" + data
 	}
