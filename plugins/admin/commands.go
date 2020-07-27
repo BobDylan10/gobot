@@ -58,10 +58,21 @@ func onMaps(emitter *players.Player, args string) {
 }
 
 func onKick(emitter *players.Player, args string) {
-	kicked, err := strconv.Atoi(args)
+	kickedid, err := strconv.Atoi(args)
 	if err != nil {
+		return
+	}
+	kicked, found := players.GetPlayer(kickedid)
+	if !found {
 		log.Log(log.LOG_VERBOSE, "Player"+args+"does not exist")
 	} else {
-		server.Kick(kicked)
+		if kicked.GetPlayerLevel() < emitter.GetPlayerLevel() {
+			log.Log(log.LOG_VERBOSE, "Kicking "+kicked.GetPlayerName())
+			server.Say("Kicking" + kicked.GetPlayerName())
+			server.Kick(kickedid)
+		} else {
+			server.Say("Cannot kick a player with higher level than yours !")
+			log.Log(log.LOG_VERBOSE, "Cannot kick a player with higher level than yours !")
+		}
 	}
 }
