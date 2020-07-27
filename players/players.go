@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type player struct {
+type Player struct {
 	did   int    //Database ID
 	name  string //Current name, used for informative purpose only
 	level int    //The level of the player on the server
@@ -20,11 +20,11 @@ type player struct {
 	attributes map[string]string
 }
 
-var players map[int]*player //Players indexed by their current player ID
+var players map[int]*Player //Players indexed by their current player ID
 var currentMap string = ""
 
 func Init() {
-	players = make(map[int]*player)
+	players = make(map[int]*Player)
 	initTable()
 }
 
@@ -49,14 +49,14 @@ func CollectEvents(e events.Event) {
 			//Here we must lookup if we already know the user. If yes we grab his info, otherwise we create his entry in the database.
 			if guid, present := t.Data["cl_guid"]; present {
 				if name, present := t.Data["name"]; present {
-					pl := &player{}
+					pl := &Player{}
 					getPlayer(guid, name, t.Data, pl)
 					log.Log(log.LOG_INFO, "Player with Database id", pl.did, ", name", pl.name, "attributes", pl.attributes)
 					players[t.Client] = pl
 					pl.newConnection() //This must be called only once we checked that he is not already in the connected players
 				}
 			} else {
-				bot := &player{did: -1, name: t.Data["name"], level: 0, isBot: true}
+				bot := &Player{did: -1, name: t.Data["name"], level: 0, isBot: true}
 				players[t.Client] = bot
 			}
 		}
@@ -74,26 +74,26 @@ func CollectEvents(e events.Event) {
 	}
 }
 
-func GetPlayer(clientid int) (*player, bool) {
+func GetPlayer(clientid int) (*Player, bool) {
 	if pl, ok := players[clientid]; ok {
 		return pl, true
 	}
-	return &player{}, false
+	return &Player{}, false
 }
 
-func (pl *player) GetPlayerLevel() int {
+func (pl *Player) GetPlayerLevel() int {
 	return pl.level
 }
 
-func (pl *player) GetPlayerName() string {
+func (pl *Player) GetPlayerName() string {
 	return pl.name
 }
 
-func (pl *player) GetPlayerDid() int {
+func (pl *Player) GetPlayerDid() int {
 	return pl.did
 }
 
-func (pl *player) IsBot() bool {
+func (pl *Player) IsBot() bool {
 	return pl.isBot
 }
 
