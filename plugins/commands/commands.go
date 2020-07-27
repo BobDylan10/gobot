@@ -1,9 +1,8 @@
 package commands
 
 import (
-
-	"testbot/events"
 	"strings"
+	"testbot/events"
 	"testbot/log"
 
 	"testbot/players"
@@ -16,17 +15,17 @@ type plugininside struct{}
 var Plug plugininside = plugininside{}
 
 var initialised = false
-var handlers map[string] commandHandler
+var handlers map[string]commandHandler
 
 type commandHandler struct {
 	handler func(int, string)
-	level int
+	level   int
 }
 
 //This function allows a plugin to register a command, provided an handler in the form func(arguments)
 //However, we need a depencies system to avoid plugins trying to register plugins before it was actually initialised
-func RegisterCommand(command string, fn func(int, string), minlevel int) bool{
-	if (initialised) {
+func RegisterCommand(command string, fn func(int, string), minlevel int) bool {
+	if initialised {
 		handlers[command] = commandHandler{fn, minlevel}
 		return true
 	}
@@ -37,7 +36,7 @@ func DeleteCommand(command string) {
 	delete(handlers, command)
 }
 
-func (p plugininside) Init() chan<- events.Event{
+func (p plugininside) Init() chan<- events.Event {
 	log.Log(log.LOG_INFO, "Starting plugin Command")
 
 	handlers = make(map[string]commandHandler)
@@ -51,9 +50,9 @@ func (p plugininside) Init() chan<- events.Event{
 
 var deps []events.EventType = []events.EventType{events.EVT_CLIENT_SAY}
 
-func (p plugininside) IsDep(e events.EventType) bool{
+func (p plugininside) IsDep(e events.EventType) bool {
 	for _, v := range deps {
-		if (v == e) {
+		if v == e {
 			return true
 		}
 	}
@@ -73,10 +72,10 @@ func runner(evts <-chan events.Event) {
 			log.Log(log.LOG_VERBOSE, "Command plugin received", t)
 			tmp := strings.SplitN(t.Text, " ", 2) //TODO: put this stuff in a function
 			cmd := tmp[0]
-			if (len(cmd) == 0) {
+			if len(cmd) == 0 {
 				continue
 			} else {
-				if (cmd[0] == '!') {
+				if cmd[0] == '!' {
 					//This is a command
 					cmd = strings.TrimPrefix(cmd, "!")
 				} else {
@@ -84,12 +83,12 @@ func runner(evts <-chan events.Event) {
 				}
 			}
 			args := ""
-			if (len(tmp) == 2) {
+			if len(tmp) == 2 {
 				args = tmp[1]
 			}
 			if pl, ok := players.GetPlayer(t.Client); ok {
 				if handler, ok := handlers[cmd]; ok {
-					if (handler.level <= pl.GetPlayerLevel()) {
+					if handler.level <= pl.GetPlayerLevel() {
 						log.Log(log.LOG_VERBOSE, "Executing command", cmd, "with args", args)
 						handler.handler(t.Client, args) //We execute the associated handler
 					} else {
@@ -107,10 +106,10 @@ func runner(evts <-chan events.Event) {
 func onHelp(id int, args string) {
 	pl, ok := players.GetPlayer(id)
 	allowedCommands := "^0"
-	if (ok) {
+	if ok {
 		lvl := pl.GetPlayerLevel()
 		for cmd, handlers := range handlers {
-			if (handlers.level <= lvl) {
+			if handlers.level <= lvl {
 				allowedCommands += "!" + cmd + ", "
 			}
 		}
