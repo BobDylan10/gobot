@@ -1,16 +1,17 @@
 package commands
 
 import (
-	"testing"
 	"fmt"
+	"testbot/players"
+	"testing"
 )
 
 //Without initialisation ?
 func TestRegisterHandler(t *testing.T) {
-	
-	if (!RegisterCommand("bs", func(id int, args string) {
+
+	if !RegisterCommand("bs", func(emitter *players.Player, args string) {
 		fmt.Println("Oups")
-	}, 20)) {
+	}, 20) {
 		fmt.Println("Plugin was not initialised : OK")
 	}
 }

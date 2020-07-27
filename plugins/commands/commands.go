@@ -18,13 +18,13 @@ var initialised = false
 var handlers map[string]commandHandler
 
 type commandHandler struct {
-	handler func(int, string)
+	handler func(*players.Player, string)
 	level   int
 }
 
 //This function allows a plugin to register a command, provided an handler in the form func(arguments)
 //However, we need a depencies system to avoid plugins trying to register plugins before it was actually initialised
-func RegisterCommand(command string, fn func(int, string), minlevel int) bool {
+func RegisterCommand(command string, fn func(*players.Player, string), minlevel int) bool {
 	if initialised {
 		handlers[command] = commandHandler{fn, minlevel}
 		return true
@@ -90,7 +90,7 @@ func runner(evts <-chan events.Event) {
 				if handler, ok := handlers[cmd]; ok {
 					if handler.level <= pl.GetPlayerLevel() {
 						log.Log(log.LOG_VERBOSE, "Executing command", cmd, "with args", args)
-						handler.handler(t.Client, args) //We execute the associated handler
+						handler.handler(pl, args) //We execute the associated handler
 					} else {
 						log.Log(log.LOG_VERBOSE, "Player tried to execute command", cmd, "without right priviledges")
 						//TODO: Print something
@@ -103,17 +103,14 @@ func runner(evts <-chan events.Event) {
 	}
 }
 
-func onHelp(id int, args string) {
-	pl, ok := players.GetPlayer(id)
+func onHelp(emitter *players.Player, args string) {
 	allowedCommands := "^0"
-	if ok {
-		lvl := pl.GetPlayerLevel()
-		for cmd, handlers := range handlers {
-			if handlers.level <= lvl {
-				allowedCommands += "!" + cmd + ", "
-			}
+	lvl := emitter.GetPlayerLevel()
+	for cmd, handlers := range handlers {
+		if handlers.level <= lvl {
+			allowedCommands += "!" + cmd + ", "
 		}
-		allowedCommands = strings.TrimSuffix(allowedCommands, ", ")
-		server.Say(allowedCommands)
 	}
+	allowedCommands = strings.TrimSuffix(allowedCommands, ", ")
+	server.Say(allowedCommands)
 }

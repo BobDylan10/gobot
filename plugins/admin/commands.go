@@ -11,20 +11,15 @@ import (
 	"testbot/log"
 )
 
-func onBonjour(id int, args string) {
+func onBonjour(emitter *players.Player, args string) {
 	server.BigText(args)
 }
 
-func onIamgod(id int, args string) {
+func onIamgod(emitter *players.Player, args string) {
 	//First we check that no-one has ever already done this
-	pl, ok := players.GetPlayer(id)
-	if ok {
-		log.Log(log.LOG_INFO, "Superadmin created !")
-		pl.SetPlayerLevel(100)
-		commands.DeleteCommand("iamgod")
-	} else {
-		log.Log(log.LOG_ERROR, "Client ID does not exist when doing a lookup")
-	}
+	log.Log(log.LOG_INFO, "Superadmin created !")
+	emitter.SetPlayerLevel(100)
+	commands.DeleteCommand("iamgod")
 }
 
 func playerToString(ind int, name string, level int) string {
@@ -37,7 +32,7 @@ func playerToString(ind int, name string, level int) string {
 	return ret
 }
 
-func onStatus(id int, args string) {
+func onStatus(emitter *players.Player, args string) {
 	server.Say("Players connected:")
 	indices, pls := players.GetConnectedPlayers()
 	if len(indices) != len(pls) {
@@ -48,11 +43,11 @@ func onStatus(id int, args string) {
 	}
 }
 
-func onSay(id int, args string) {
+func onSay(emitter *players.Player, args string) {
 	server.Say("This was tested")
 }
 
-func onMaps(id int, args string) {
+func onMaps(emitter *players.Player, args string) {
 	maps := server.GetMaps()
 	res := "Available maps: "
 	for _, mp := range maps {
@@ -62,7 +57,7 @@ func onMaps(id int, args string) {
 	server.Say(res)
 }
 
-func onKick(id int, args string) {
+func onKick(emitter *players.Player, args string) {
 	kicked, err := strconv.Atoi(args)
 	if err != nil {
 		log.Log(log.LOG_VERBOSE, "Player"+args+"does not exist")
