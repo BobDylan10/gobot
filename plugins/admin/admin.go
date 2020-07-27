@@ -16,16 +16,19 @@ var Plug plugininside = plugininside{}
 func (p plugininside) Init() chan<- events.Event {
 	log.Log(log.LOG_INFO, "Starting plugin Admin")
 
-	if (!commands.RegisterCommand("bonjour", onBonjour, 1)) {
+	if !commands.RegisterCommand("bonjour", onBonjour, 1) {
 		log.Log(log.LOG_ERROR, "Plugin COMMAND was not initialized !")
 	}
 	pls := players.GetPlayersOfLevel(100)
-	if (len(pls) == 0) {
+	if len(pls) == 0 {
 		commands.RegisterCommand("iamgod", onIamgod, 1) //Only register this command if no superadmin was created
 	}
 	commands.RegisterCommand("say", onSay, 20)
 	commands.RegisterCommand("status", onStatus, 20)
 	commands.RegisterCommand("maps", onMaps, 20)
+
+	commands.RegisterCommand("kick", onKick, 20)
+
 	in := make(chan events.Event)
 	go runner(in)
 	return in
@@ -33,9 +36,9 @@ func (p plugininside) Init() chan<- events.Event {
 
 var deps []events.EventType = []events.EventType{}
 
-func (p plugininside) IsDep(e events.EventType) bool{
+func (p plugininside) IsDep(e events.EventType) bool {
 	for _, v := range deps {
-		if (v == e) {
+		if v == e {
 			return true
 		}
 	}
@@ -48,7 +51,7 @@ func (p plugininside) GetName() string {
 
 func runner(evts <-chan events.Event) {
 	//Beware of the deadlock with back !!!
-	
+
 	log.Log(log.LOG_INFO, "Starting command plugin,", evts)
 	for {
 		evt := <-evts
