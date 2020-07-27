@@ -2,6 +2,7 @@ package server
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"testbot/log"
 	"testbot/server/rcon"
@@ -88,6 +89,20 @@ func Say(tosay string) {
 		CallServer("say \"" + line + "\"")
 	}
 	//Is it necessary to return something ?
+}
+
+func Kick(pid int) bool {
+	p := strconv.Itoa(pid)
+	r := CallServer("kick " + p)
+	b := strings.Contains(r, "kicked")
+	if b {
+		log.Log(log.LOG_INFO, "Player "+p+" was kicked")
+		return true
+	} else {
+		log.Log(log.LOG_INFO, "Player "+p+" was not kicked")
+		return false
+	}
+	//TODO: return code to say if it worked
 }
 
 func BigText(tosay string) {

@@ -61,3 +61,12 @@ func onMaps(id int, args string) {
 	}
 	server.Say(res)
 }
+
+func onKick(id int, args string) {
+	kicked, err := strconv.Atoi(args)
+	if err != nil {
+		log.Log(log.LOG_VERBOSE, "Player"+args+"does not exist")
+	} else {
+		server.Kick(kicked)
+	}
+}
