@@ -15,11 +15,10 @@ func onBonjour(id int, args string) {
 	server.BigText(args)
 }
 
-//TODO: Remove this from handler once a superadmin was created
 func onIamgod(id int, args string) {
 	//First we check that no-one has ever already done this
 	pl, ok := players.GetPlayer(id)
-	if (ok) {
+	if ok {
 		log.Log(log.LOG_INFO, "Superadmin created !")
 		pl.SetPlayerLevel(100)
 		commands.DeleteCommand("iamgod")
@@ -28,7 +27,7 @@ func onIamgod(id int, args string) {
 	}
 }
 
-func playerToString(ind int, name string, level int) string{
+func playerToString(ind int, name string, level int) string {
 	ret := strconv.FormatInt(int64(ind), 10)
 	ret += ": "
 	ret += name
@@ -41,7 +40,7 @@ func playerToString(ind int, name string, level int) string{
 func onStatus(id int, args string) {
 	server.Say("Players connected:")
 	indices, pls := players.GetConnectedPlayers()
-	if (len(indices) != len(pls)) {
+	if len(indices) != len(pls) {
 		log.Log(log.LOG_FATAL, "Players and indices don't have the same size !")
 	}
 	for i := 0; i < len(indices); i++ {

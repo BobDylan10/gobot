@@ -1,10 +1,10 @@
 package main
 
 import (
-    "bufio"
+	"bufio"
+	"flag"
 	"os"
 	"time"
-	"flag"
 
 	"os/signal"
 	"syscall"
@@ -13,10 +13,10 @@ import (
 
 	"testbot/database"
 
+	"testbot/events"
 	"testbot/parsers/iourt43"
 	"testbot/server"
-	"testbot/events"
-	
+
 	"testbot/plugins"
 
 	"testbot/players"
@@ -42,7 +42,7 @@ func reader(path string) {
 			for scanner.Scan() {
 				txt := scanner.Text()
 				e := iourt43.ParseLine(txt)
-				if (e != nil) {
+				if e != nil {
 					pluginSchedule(e)
 				}
 			}
@@ -53,7 +53,6 @@ func reader(path string) {
 	}
 }
 
-
 func pluginSchedule(evt events.Event) {
 	log.Log(log.LOG_DEBUG, "Scheduling plugins for event", evt)
 	//First, send to players. This is not sent in a goroutine because it is safer to wait for the player module to finish its work before continuing the rest
@@ -61,11 +60,12 @@ func pluginSchedule(evt events.Event) {
 	//Then, send to plugins
 	for plugin, evtmap := range pluginInBuffers {
 		//TODO: build the list of plugins to be scheduled per event to avoid computation
-		if (plugins.Plugins[plugin].IsDep(evt.EventType())) {
+		if plugins.Plugins[plugin].IsDep(evt.EventType()) {
 			//TODO: Here we should add a timeout incase a plugin is stuck
-			evtmap<-evt
+			evtmap <- evt
 		}
 	}
+	//TODO: wait for all plugins to be done ? No, call directly plugin functions
 }
 
 var pluginInBuffers map[plugins.PluginID](chan<- events.Event)
@@ -92,7 +92,6 @@ func main() {
 	log.Log(log.LOG_INFO, "Starting b0t")
 	argsParse()
 	path := "/home/guillaume/Documents/Urt/q3ut4/games.log"
-	
 
 	database.SetDatabase("gobot:gobot@/gobot_db?parseTime=true") //Init database
 	initPlugins()
@@ -110,7 +109,7 @@ func main() {
 		go database.CloseDatabase() //Launched in goroutines incase they are frozen for some reason
 		go server.Close()
 
-		time.Sleep(time.Second)//Let 1 second to close what needs to be closed
+		time.Sleep(time.Second) //Let 1 second to close what needs to be closed
 
 		os.Exit(0)
 	}()

@@ -1,16 +1,16 @@
 package log
 
 import (
+	"fmt"
 	"io"
-	"sync"
+	"os"
 	"runtime"
 	"strconv"
-	"os"
-	"fmt"
+	"sync"
 )
 
-var lock     sync.Mutex // ensures atomic writes; protects the following fields
-var writer    io.Writer = os.Stdout  // destination for output
+var lock sync.Mutex              // ensures atomic writes; protects the following fields
+var writer io.Writer = os.Stdout // destination for output
 var minPrint Loglevel = LOG_VERBOSE
 
 type Loglevel int
@@ -44,18 +44,17 @@ func level(l Loglevel) string {
 	}
 }
 
-
 func Log(lvl Loglevel, a ...interface{}) {
 	header := ""
 	header += level(lvl)
 
 	_, file, line, ok := runtime.Caller(1)
 	finfo := "???: "
-	if (ok) {
+	if ok {
 		finfo = file + " " + strconv.Itoa(line) + ": "
 	}
 	header += finfo
-	if (lvl >= minPrint) {
+	if lvl >= minPrint {
 		fmt.Fprintln(writer, header, a)
 	}
 }
