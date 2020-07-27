@@ -2,25 +2,26 @@ package players
 
 import (
 	"testbot/events"
-	"time"
 	"testbot/log"
+	"time"
 )
 
 type player struct {
-	did int //Database ID
-	name string //Current name, used for informative purpose only
-	level int //The level of the player on the server
+	did   int    //Database ID
+	name  string //Current name, used for informative purpose only
+	level int    //The level of the player on the server
 	//data map[string]string //Additional data
-	isBot bool
-	connections int
+	isBot          bool
+	connections    int
 	lastConnection time.Time
-	guid string //The game unique ID
-	toBeDeleted bool
+	guid           string //The game unique ID
+	toBeDeleted    bool
 	//Map for all extra attributes ? Seems goooooooood
 	attributes map[string]string
 }
 
 var players map[int]*player //Players indexed by their current player ID
+var currentMap string = ""
 
 func Init() {
 	players = make(map[int]*player)
@@ -40,7 +41,7 @@ func CollectEvents(e events.Event) {
 		//We check that the player is not already inside the connected players
 		if pl, ok := players[t.Client]; ok {
 			//We check that the guid is corresponding
-			if (pl.guid != t.Data["cl_guid"]) {
+			if pl.guid != t.Data["cl_guid"] {
 				log.Log(log.LOG_ERROR, "A player id was seen with a GUID different than in the database")
 			}
 		} else {
@@ -61,6 +62,13 @@ func CollectEvents(e events.Event) {
 		}
 	case events.EventClientDisconnect:
 		players[t.Client].toBeDeleted = true
+	case events.EventInitGame:
+		cmap, ok := t.Data["map"]
+		if ok {
+			currentMap = cmap
+		} else {
+			log.Log(log.LOG_INFO, "Event Init Game did not contain any map name : weird.")
+		}
 	default:
 		log.Log(log.LOG_DEBUG, "Unexpected type", t)
 	}
@@ -87,4 +95,8 @@ func (pl *player) GetPlayerDid() int {
 
 func (pl *player) IsBot() bool {
 	return pl.isBot
+}
+
+func GetCurrentMap() string {
+	return currentMap
 }
